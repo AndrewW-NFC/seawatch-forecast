@@ -3,27 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A local seawatching conditions forecast for Shadmoor and Montauk Point.">
   <title>Seawatch Forecast</title>
   <style>
     :root {
       color-scheme: light;
       --ink: #17222b;
-      --muted: #64727d;
-      --line: #d9e2e6;
+      --muted: #60717b;
+      --line: #d9e3e4;
       --panel: #ffffff;
-      --page: #f4f7f7;
-      --deep: #123247;
-      --water: #0b7180;
+      --page: #f3f6f4;
+      --deep: #113043;
+      --water: #0c7480;
       --water-dark: #075766;
+      --sea-soft: #e4f0ef;
       --land: #d8c79c;
-      --good: #26785e;
-      --mixed: #a56d13;
-      --soft: #e6f1f2;
+      --green: #26785e;
+      --green-bg: #e8f4ee;
+      --gold: #9a6819;
+      --gold-bg: #fbefd9;
+      --red: #9c4338;
+      --red-bg: #f8e5e1;
+      --sky: #2b6c9b;
+      --sky-bg: #e7f0f7;
+      --shadow: 0 18px 46px rgba(18, 50, 71, 0.1);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     body {
@@ -33,43 +45,13 @@
       color: var(--ink);
     }
 
-    button {
+    button,
+    select {
       font: inherit;
     }
 
-    .page {
-      width: min(1120px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 40px;
-    }
-
-    header {
-      display: grid;
-      gap: 18px;
-      margin-bottom: 22px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--deep);
-      font-weight: 800;
-    }
-
-    .mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: var(--deep);
-      display: grid;
-      place-items: center;
-      color: #ffffff;
-    }
-
-    .mark svg {
-      width: 25px;
-      height: 25px;
+    button {
+      -webkit-tap-highlight-color: transparent;
     }
 
     h1,
@@ -79,48 +61,167 @@
       margin: 0;
     }
 
-    h1 {
-      max-width: 780px;
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 34px;
+    }
+
+    header {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .title-stack {
+      display: grid;
+      min-width: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
       color: var(--deep);
-      font-size: clamp(34px, 7vw, 64px);
+      font-weight: 850;
+    }
+
+    .mark {
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      background: var(--deep);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      flex: 0 0 auto;
+    }
+
+    .mark svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .data-status {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+      padding: 7px 11px;
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      color: var(--deep);
+      font-size: clamp(32px, 5vw, 46px);
+      font-weight: 900;
       line-height: 1;
       letter-spacing: 0;
     }
 
-    .intro {
-      max-width: 720px;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.55;
-    }
-
-    .site-picker {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .site-picker button {
-      min-height: 42px;
+    .control-panel {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      color: var(--deep);
-      cursor: pointer;
-      padding: 0 14px;
-      font-weight: 700;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display: grid;
+      gap: 13px;
     }
 
-    .site-picker button.is-active {
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .control-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .segmented button,
+    .reload-button {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+      color: var(--deep);
+      cursor: pointer;
+      padding: 0 12px;
+      font-weight: 800;
+    }
+
+    .segmented button.is-active {
       background: var(--deep);
       border-color: var(--deep);
       color: #ffffff;
     }
 
+    .segmented button:focus-visible,
+    .reload-button:focus-visible {
+      outline: 3px solid rgba(12, 116, 128, 0.28);
+      outline-offset: 2px;
+    }
+
+    .reload-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding-top: 11px;
+    }
+
+    .reload-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sea-soft);
+      border-color: rgba(12, 116, 128, 0.18);
+      color: var(--water-dark);
+      flex: 0 0 auto;
+    }
+
+    .reload-button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .reload-button[disabled] {
+      cursor: wait;
+      opacity: 0.68;
+    }
+
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 380px;
+      grid-template-columns: minmax(0, 1fr) 390px;
       gap: 18px;
       align-items: start;
     }
@@ -129,18 +230,18 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
-      box-shadow: 0 14px 38px rgba(18, 50, 71, 0.09);
+      box-shadow: var(--shadow);
     }
 
-    .summary {
-      padding: 22px;
+    .main-read {
       display: grid;
-      gap: 20px;
+      gap: 18px;
+      padding: 20px;
     }
 
-    .summary-top {
+    .read-top {
       display: grid;
-      gap: 8px;
+      gap: 12px;
       border-bottom: 1px solid var(--line);
       padding-bottom: 18px;
     }
@@ -148,97 +249,179 @@
     .label {
       color: var(--water);
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
-    .summary h2 {
+    .headline-row {
+      display: block;
+    }
+
+    .main-read h2 {
       color: var(--deep);
-      font-size: clamp(24px, 4vw, 38px);
+      font-size: clamp(26px, 4vw, 38px);
       line-height: 1.08;
       letter-spacing: 0;
     }
 
-    .summary p {
+    .rating-badge,
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .rating-badge {
+      min-height: 34px;
+      padding: 0 13px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .pill {
+      min-height: 28px;
+      padding: 0 10px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .tone-strong,
+    .tone-good {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: rgba(38, 120, 94, 0.18);
+    }
+
+    .tone-mixed {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border-color: rgba(154, 104, 25, 0.2);
+    }
+
+    .tone-hard,
+    .tone-low {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: rgba(156, 67, 56, 0.2);
+    }
+
+    .tone-info {
+      background: var(--sky-bg);
+      color: var(--sky);
+      border-color: rgba(43, 108, 155, 0.2);
+    }
+
+    .daily-read {
+      color: var(--ink);
+      font-size: 17px;
+      line-height: 1.58;
+      max-width: 760px;
+    }
+
+    .meta-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
       color: var(--muted);
-      font-size: 16px;
-      line-height: 1.55;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .meta-strip span {
+      border: 1px solid var(--line);
+      background: #fbfdfd;
+      border-radius: 999px;
+      padding: 6px 10px;
     }
 
     .answer-list {
       display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
     .answer {
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr);
-      gap: 14px;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
       align-items: start;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px;
+      padding: 13px;
       background: #fbfdfd;
+      min-height: 162px;
     }
 
     .answer-icon {
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       border-radius: 8px;
-      background: var(--soft);
+      background: var(--sea-soft);
       display: grid;
       place-items: center;
       color: var(--water-dark);
     }
 
     .answer-icon svg {
-      width: 25px;
-      height: 25px;
+      width: 24px;
+      height: 24px;
       stroke: currentColor;
       stroke-width: 2;
       fill: none;
     }
 
-    .answer h3 {
+    .answer h3,
+    .driver-card h3 {
       color: var(--deep);
-      font-size: 18px;
+      font-size: 17px;
       line-height: 1.25;
       margin-bottom: 5px;
     }
 
-    .answer p {
-      font-size: 15px;
+    .answer p,
+    .driver-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 28px;
-      width: max-content;
-      max-width: 100%;
-      border-radius: 999px;
-      padding: 0 10px;
-      margin-top: 10px;
-      background: #e9f5ef;
-      color: var(--good);
-      font-size: 13px;
-      font-weight: 800;
+    .drivers {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    .pill.mixed {
-      background: #fbefd9;
-      color: var(--mixed);
+    .driver-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+      padding: 12px;
+      min-height: 118px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .driver-card strong {
+      color: var(--deep);
+      font-size: 24px;
+      line-height: 1;
     }
 
     .map-card {
       overflow: hidden;
+      position: sticky;
+      top: 16px;
     }
 
     .simple-map {
       position: relative;
-      height: 330px;
+      aspect-ratio: 380 / 330;
       overflow: hidden;
       background:
         linear-gradient(145deg, var(--water-dark), var(--water) 58%, #77aaa0);
@@ -266,16 +449,6 @@
     .simple-map.show-shadmoor .shadmoor-map,
     .simple-map.show-montauk .montauk-map {
       display: block;
-    }
-
-    .montauk-map .face {
-      opacity: 0.22;
-    }
-
-    .simple-map.montauk-north .face-north,
-    .simple-map.montauk-east .face-east,
-    .simple-map.montauk-south .face-south {
-      opacity: 1;
     }
 
     .map-land {
@@ -316,156 +489,30 @@
 
     .map-label {
       fill: #ffffff;
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 14px;
+      font-weight: 850;
       paint-order: stroke;
       stroke: rgba(18, 50, 71, 0.72);
       stroke-linejoin: round;
       stroke-width: 4;
     }
 
-    .map-label.dark {
-      fill: var(--deep);
-      stroke: rgba(255, 255, 255, 0.72);
-    }
-
-    .north-arrow {
-      fill: #ffffff;
-      font-size: 12px;
-      font-weight: 900;
-      opacity: 0.9;
-    }
-
-    .map-caption {
-      padding: 16px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .map-caption h2 {
-      color: var(--deep);
-      font-size: 21px;
-      line-height: 1.15;
-    }
-
-    .map-caption p {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .legend {
-      display: grid;
-      gap: 9px;
-      margin-top: 2px;
-    }
-
-    .legend div {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .legend-symbol {
-      width: 34px;
-      height: 22px;
-      flex: 0 0 auto;
-    }
-
-    .legend-symbol.wind-demo {
-      background: var(--water);
-      border-radius: 4px;
-      display: grid;
-      place-items: center;
-    }
-
-    .legend-symbol svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .why {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfdfd;
-      padding: 14px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .why h3 {
-      color: var(--deep);
-      font-size: 18px;
-      line-height: 1.25;
-    }
-
-    .why ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 8px;
-    }
-
-    .why li {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
-      padding-left: 18px;
-      position: relative;
-    }
-
-    .why li::before {
-      content: "";
+    .map-place-label {
       position: absolute;
-      left: 0;
-      top: 0.62em;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--water);
-    }
-
-    .face-controls {
-      border-top: 1px solid var(--line);
-      display: grid;
-      gap: 10px;
-      padding-top: 12px;
-    }
-
-    .face-controls[hidden] {
-      display: none;
-    }
-
-    .face-controls p {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .face-buttons {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .face-buttons button {
-      min-height: 38px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfdfd;
+      top: 14px;
+      left: 14px;
+      z-index: 3;
+      max-width: calc(100% - 28px);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
       color: var(--deep);
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .face-buttons button.is-active {
-      background: var(--deep);
-      border-color: var(--deep);
-      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 7px 10px;
+      box-shadow: 0 6px 16px rgba(18, 50, 71, 0.16);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .forecast {
@@ -475,15 +522,29 @@
       gap: 14px;
     }
 
-    .forecast h2 {
-      color: var(--deep);
-      font-size: 22px;
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
-    .forecast-note {
+    .forecast h2 {
+      color: var(--deep);
+      font-size: 23px;
+    }
+
+    .forecast-note,
+    .source-note {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.45;
+    }
+
+    .source-note a {
+      color: var(--water-dark);
+      font-weight: 800;
     }
 
     .forecast-days {
@@ -498,34 +559,40 @@
       background: #fbfdfd;
       padding: 14px;
       display: grid;
-      gap: 10px;
-      min-height: 190px;
+      gap: 11px;
+      min-height: 318px;
     }
 
     .day-card time {
       color: var(--water);
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
     .day-card h3 {
       color: var(--deep);
-      font-size: 19px;
+      font-size: 20px;
       line-height: 1.2;
     }
 
     .day-card p {
       color: var(--muted);
       font-size: 14px;
-      line-height: 1.45;
+      line-height: 1.48;
+    }
+
+    .day-read {
+      color: var(--ink) !important;
     }
 
     .day-detail {
       display: grid;
-      gap: 5px;
+      gap: 6px;
       margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
     }
 
     .day-detail span {
@@ -534,37 +601,76 @@
       line-height: 1.35;
     }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+    .loading-shell {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
 
+    .loading-shell strong {
+      display: block;
+      color: var(--deep);
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .error-box {
+      border: 1px solid rgba(156, 67, 56, 0.2);
+      background: var(--red-bg);
+      color: var(--red);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1050px) {
+      .controls,
+      .layout,
+      .answer-list,
+      .drivers,
       .forecast-days {
         grid-template-columns: 1fr;
       }
 
       .map-card {
+        position: static;
         order: -1;
       }
     }
 
-    @media (max-width: 560px) {
+    @media (max-width: 620px) {
       .page {
-        width: min(100% - 24px, 1120px);
+        width: min(100% - 24px, 1180px);
         padding-top: 18px;
+      }
+
+      .headline-row {
+        grid-template-columns: 1fr;
       }
 
       .answer {
         grid-template-columns: 1fr;
       }
 
-      .answer-icon {
-        width: 42px;
-        height: 42px;
-      }
-
-      .simple-map {
-        height: 280px;
+      .reload-row {
+        align-items: start;
+        flex-direction: column;
       }
     }
   </style>
@@ -572,111 +678,174 @@
 <body>
   <div class="page">
     <header>
-      <div class="brand">
-        <div class="mark" aria-hidden="true">
-          <svg viewBox="0 0 48 48">
-            <path d="M8 31c7 0 7-5 16-5s9 5 16 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-            <path d="M12 38c5 0 5-3 11-3s6 3 13 3" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-            <path d="M24 9l7 13H17L24 9z" fill="currentColor"/>
-          </svg>
+      <div class="brand-row">
+        <div class="title-stack">
+          <div class="brand">
+            <div class="mark" aria-hidden="true">
+              <svg viewBox="0 0 48 48">
+                <path d="M8 31c7 0 7-5 16-5s9 5 16 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                <path d="M12 38c5 0 5-3 11-3s6 3 13 3" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                <path d="M24 9l7 13H17L24 9z" fill="currentColor"/>
+              </svg>
+            </div>
+            <h1 class="brand-title">Seawatch Forecast</h1>
+          </div>
         </div>
-        <span>Seawatch Forecast</span>
       </div>
 
-      <div>
-        <h1>Is today a good day to watch seabirds from shore?</h1>
-        <p class="intro">Pick a place. The forecast gives three plain answers: whether birds may be close, whether you can see well, and what gear will help.</p>
-      </div>
+      <section class="control-panel" aria-label="Forecast controls">
+        <div class="controls">
+          <div class="control-group">
+            <div class="control-label">Place</div>
+            <div class="segmented" id="site-picker" aria-label="Choose a seawatching spot">
+              <button class="is-active" type="button" data-site="shadmoor">Shadmoor</button>
+              <button type="button" data-site="montauk">Montauk Point</button>
+            </div>
+          </div>
 
-      <nav class="site-picker" aria-label="Choose a seawatching spot">
-        <button class="is-active" type="button" data-site="shadmoor">Shadmoor</button>
-        <button type="button" data-site="montauk">Montauk Point</button>
-      </nav>
+          <div class="control-group" id="face-group" hidden>
+            <div class="control-label">Montauk Face</div>
+            <div class="segmented" id="face-picker" aria-label="Choose Montauk viewing side">
+              <button type="button" data-face="north">North</button>
+              <button class="is-active" type="button" data-face="east">East</button>
+              <button type="button" data-face="south">South</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Watch Window</div>
+            <div class="segmented" id="window-picker" aria-label="Choose watch window">
+              <button class="is-active" type="button" data-window="dawn">Dawn</button>
+              <button type="button" data-window="morning">Morning</button>
+              <button type="button" data-window="midday">Midday</button>
+              <button type="button" data-window="afternoon">Afternoon</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="reload-row">
+          <span class="data-status" id="data-status" aria-live="polite">Preparing live forecast...</span>
+          <button class="reload-button" id="reload-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 0 1-15.2 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3 12A9 9 0 0 1 18.2 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 2v4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 22v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+      </section>
     </header>
 
     <main>
       <div class="layout">
-        <section class="card summary" aria-labelledby="today-heading">
-          <div class="summary-top">
-            <div class="label" id="place-label">Shadmoor State Park</div>
-            <h2 id="today-heading">Worth trying this morning.</h2>
-            <p id="plain-summary">This is a mostly one-direction seawatch. You stand on the south shore and scan the ocean to the southeast.</p>
+        <section class="card main-read" aria-labelledby="today-heading">
+          <div id="read-shell" class="loading-shell">
+            <div>
+              <strong>Reading the weather...</strong>
+              <span>Pulling wind, visibility, sun, and marine conditions.</span>
+            </div>
           </div>
 
-          <div class="answer-list">
-            <article class="answer">
-              <div class="answer-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M3 13c3-3 6-3 9 0s6 3 9 0"/>
-                  <path d="M6 17c2-2 4-2 6 0s4 2 6 0"/>
-                  <path d="M12 5l4 6H8l4-6z"/>
-                </svg>
+          <div id="read-content" hidden>
+            <div class="read-top">
+              <div class="label" id="place-label">Shadmoor State Park</div>
+              <div class="headline-row">
+                <h2 id="today-heading">Building the watch read.</h2>
               </div>
-              <div>
-                <h3>Will birds be close?</h3>
-                <p id="birds-answer">Maybe. The wind is coming from the water toward land, which can bring seabirds closer than usual.</p>
-                <span class="pill" id="birds-pill">Good sign</span>
-              </div>
-            </article>
+              <p class="daily-read" id="daily-read"></p>
+              <div class="meta-strip" id="meta-strip"></div>
+            </div>
 
-            <article class="answer">
-              <div class="answer-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
-                </svg>
-              </div>
-              <div>
-                <h3>Can I see far?</h3>
-                <p id="view-answer">Somewhat. The air is clear enough, but waves and glare may make faraway birds harder to identify.</p>
-                <span class="pill mixed" id="view-pill">Mixed</span>
-              </div>
-            </article>
+            <div class="answer-list">
+              <article class="answer">
+                <div class="answer-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 9.5l3-2.5 3 2.5"/>
+                    <path d="M14 9.5l3-2.5 3 2.5"/>
+                    <path d="M8 16c1.3-1.1 2.7-1.1 4 0 1.3-1.1 2.7-1.1 4 0"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Will birds be close?</h3>
+                  <p id="birds-answer"></p>
+                  <span class="pill" id="birds-pill"></span>
+                </div>
+              </article>
 
-            <article class="answer">
-              <div class="answer-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M4 8h7l3 8H7L4 8z"/>
-                  <path d="M14 10h3a3 3 0 0 1 0 6h-1"/>
-                  <path d="M9 16v4"/>
-                  <path d="M6 20h6"/>
-                </svg>
-              </div>
-              <div>
-                <h3>What should I bring?</h3>
-                <p id="gear-answer">Bring a spotting scope if possible. Binoculars should still help for large, closer birds.</p>
-                <span class="pill" id="gear-pill">Scope helpful</span>
-              </div>
-            </article>
+              <article class="answer">
+                <div class="answer-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Can I see far?</h3>
+                  <p id="view-answer"></p>
+                  <span class="pill" id="view-pill"></span>
+                </div>
+              </article>
+
+              <article class="answer">
+                <div class="answer-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 8h7l3 8H7L4 8z"/>
+                    <path d="M14 10h3a3 3 0 0 1 0 6h-1"/>
+                    <path d="M9 16v4"/>
+                    <path d="M6 20h6"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>What should I bring?</h3>
+                  <p id="gear-answer"></p>
+                  <span class="pill" id="gear-pill"></span>
+                </div>
+              </article>
+            </div>
+
+            <section class="drivers" aria-label="Condition signals">
+              <article class="driver-card">
+                <h3>Wind</h3>
+                <strong id="wind-driver">--</strong>
+                <p id="wind-copy"></p>
+              </article>
+              <article class="driver-card">
+                <h3>Glare</h3>
+                <strong id="glare-driver">--</strong>
+                <p id="glare-copy"></p>
+              </article>
+              <article class="driver-card">
+                <h3>Shimmer</h3>
+                <strong id="shimmer-driver">--</strong>
+                <p id="shimmer-copy"></p>
+              </article>
+              <article class="driver-card">
+                <h3>Water</h3>
+                <strong id="water-driver">--</strong>
+                <p id="water-copy"></p>
+              </article>
+            </section>
           </div>
-
-          <section class="why" aria-labelledby="why-heading">
-            <h3 id="why-heading">Why this says that</h3>
-            <ul id="why-list"></ul>
-          </section>
         </section>
 
-        <aside class="card map-card" aria-labelledby="map-heading">
+        <aside class="card map-card" aria-label="Site map with live wind">
           <div class="simple-map show-shadmoor" id="simple-map">
+            <div class="map-place-label" id="map-place-label">Shadmoor State Park</div>
             <svg class="location-map shadmoor-map" viewBox="0 0 380 330" role="img" aria-label="Shadmoor coastline map">
               <defs>
                 <marker id="arrow-head-shadmoor" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                   <path d="M0 0 10 5 0 10z" fill="#ffffff"/>
                 </marker>
               </defs>
+              <path class="view-area" id="shadmoor-view-area" d="M246 136 L366 205 L296 314 L215 235 Z"/>
               <polygon class="map-land" points="-10,-10 390,-10 390,125 -10,151"/>
               <polygon class="map-shade" points="-10,-10 390,-10 390,92 -10,121"/>
               <path class="coast-line" d="M-8 151 C 92 145, 213 137, 388 125"/>
-              <polygon class="view-area" points="246,136 366,205 296,314 215,235"/>
-              <line class="wind-vector" x1="334" y1="260" x2="260" y2="171" marker-end="url(#arrow-head-shadmoor)"/>
+              <line class="wind-vector" id="shadmoor-wind-line" x1="334" y1="260" x2="246" y2="136" marker-end="url(#arrow-head-shadmoor)"/>
               <circle class="viewer-dot" cx="246" cy="136" r="9"/>
-              <text class="map-label dark" x="22" y="52">land</text>
-              <text class="map-label" x="277" y="292">ocean to southeast</text>
-              <text class="map-label" x="220" y="120">you</text>
-              <text class="map-label" x="254" y="255">wind from ocean</text>
-              <text class="north-arrow" x="333" y="38">N</text>
-              <path d="M339 48V22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-              <path d="M332 30l7-8 7 8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <text class="map-label" id="shadmoor-wind-label" x="230" y="255" text-anchor="middle">live wind</text>
             </svg>
 
             <svg class="location-map montauk-map" viewBox="0 0 380 330" role="img" aria-label="Montauk Point coastline map">
@@ -685,253 +854,114 @@
                   <path d="M0 0 10 5 0 10z" fill="#ffffff"/>
                 </marker>
               </defs>
+              <path class="view-area" id="montauk-view-area" d="M330 169 L375 112 L388 214 L326 210 Z"/>
               <polygon class="map-land" points="-10,88 72,82 173,86 252,103 330,136 358,171 326,210 252,238 158,249 58,262 -10,278"/>
               <polygon class="map-shade" points="-10,102 74,97 172,101 246,116 310,143 338,171 314,198 244,222 152,233 54,246 -10,262"/>
               <path class="coast-line" d="M-8 88 C 83 75, 209 84, 330 136 C 369 153, 370 184, 326 210 C 244 258, 119 246, -8 278"/>
-              <polygon class="view-area face face-north" points="330,136 294,20 372,42 366,150"/>
-              <polygon class="view-area face face-east" points="330,136 375,112 388,214 326,210"/>
-              <polygon class="view-area face face-south" points="326,210 371,252 278,317 246,236"/>
-              <line class="wind-vector" x1="372" y1="160" x2="334" y2="162" marker-end="url(#arrow-head-montauk)"/>
+              <line class="wind-vector" id="montauk-wind-line" x1="372" y1="160" x2="330" y2="169" marker-end="url(#arrow-head-montauk)"/>
               <circle class="viewer-dot" cx="330" cy="169" r="9"/>
-              <text class="map-label dark" x="35" y="174">land</text>
-              <text class="map-label" x="206" y="59">north water</text>
-              <text class="map-label" x="293" y="288">south water</text>
-              <text class="map-label" x="294" y="189">you</text>
-              <text class="map-label" x="240" y="153">east water</text>
-              <text class="north-arrow" x="333" y="38">N</text>
-              <path d="M339 48V22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-              <path d="M332 30l7-8 7 8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <text class="map-label" id="montauk-wind-label" x="230" y="235" text-anchor="middle">live wind</text>
             </svg>
-          </div>
-
-          <div class="map-caption">
-            <h2 id="map-heading">The shape of the shore matters</h2>
-            <p id="map-copy">Shadmoor is drawn as a mostly straight south-shore coastline. The useful view is mainly out over the ocean to the southeast.</p>
-            <div class="legend">
-              <div>
-                <span class="legend-symbol" aria-hidden="true">
-                  <svg viewBox="0 0 34 22">
-                    <polygon points="3,18 17,3 31,18" fill="rgba(11,113,128,0.2)" stroke="rgba(11,113,128,0.85)" stroke-width="1.5"/>
-                  </svg>
-                </span>
-                Pale wedge: water you are scanning
-              </div>
-              <div>
-                <span class="legend-symbol wind-demo" aria-hidden="true">
-                  <svg viewBox="0 0 34 22">
-                    <line x1="5" y1="17" x2="25" y2="6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M23 2l7 2-3 7" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-                Arrow: wind blowing toward the shore
-              </div>
-              <div>
-                <span class="legend-symbol" aria-hidden="true">
-                  <svg viewBox="0 0 34 22">
-                    <circle cx="17" cy="11" r="7" fill="#ffffff" stroke="#123247" stroke-width="4"/>
-                  </svg>
-                </span>
-                Dot: where you are watching from
-              </div>
-              <div>
-                <span class="legend-symbol" aria-hidden="true">
-                  <svg viewBox="0 0 34 22">
-                    <path d="M2 5h30v12H2z" fill="#d8c79c"/>
-                    <path d="M2 16c8-3 20-2 30-5" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
-                  </svg>
-                </span>
-                Tan area: land
-              </div>
-            </div>
-            <div class="face-controls" id="face-controls" hidden>
-              <p id="face-copy">Choose which side of the point you plan to scan.</p>
-              <div class="face-buttons" aria-label="Choose Montauk viewing side">
-                <button type="button" data-face="north">North</button>
-                <button class="is-active" type="button" data-face="east">East</button>
-                <button type="button" data-face="south">South</button>
-              </div>
-            </div>
           </div>
         </aside>
       </div>
 
       <section class="card forecast" aria-labelledby="forecast-heading">
-        <h2 id="forecast-heading">Three-day forecast</h2>
-        <p class="forecast-note">Before noon, this starts with today. After noon, it starts with tomorrow.</p>
-        <div class="forecast-days" id="forecast-days"></div>
+        <div class="section-head">
+          <div>
+            <h2 id="forecast-heading">Next Three Daily Reads</h2>
+            <p class="forecast-note" id="forecast-note">Each paragraph is generated from live wind, visibility, sun, and marine signals.</p>
+          </div>
+        </div>
+        <div class="forecast-days" id="forecast-days" aria-live="polite"></div>
+        <p class="source-note">Weather and marine data from <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>. This is a birding interpretation of model data, not a safety forecast or navigation product.</p>
       </section>
     </main>
   </div>
 
   <script>
+    const WEATHER_ENDPOINT = "https://api.open-meteo.com/v1/forecast";
+    const MARINE_ENDPOINT = "https://marine-api.open-meteo.com/v1/marine";
+
+    const WATCH_WINDOWS = {
+      dawn: {
+        label: "Dawn",
+        shortLabel: "dawn",
+        fallbackHours: [5, 6, 7]
+      },
+      morning: {
+        label: "Morning",
+        shortLabel: "morning",
+        fallbackHours: [7, 8, 9, 10]
+      },
+      midday: {
+        label: "Midday",
+        shortLabel: "midday",
+        fallbackHours: [11, 12, 13, 14]
+      },
+      afternoon: {
+        label: "Afternoon",
+        shortLabel: "afternoon",
+        fallbackHours: [15, 16, 17, 18]
+      }
+    };
+
     const sites = {
       shadmoor: {
         place: "Shadmoor State Park",
-        heading: "Worth trying this morning.",
-        summary: "This is a mostly one-direction seawatch. You stand on the south shore and scan the ocean to the southeast.",
-        birds: "Maybe. The wind is coming from the water toward land, which can bring seabirds closer than usual.",
-        birdsPill: "Good sign",
-        view: "Somewhat. The air is clear enough, but waves and glare may make faraway birds harder to identify.",
-        viewPill: "Mixed",
-        gear: "Bring a spotting scope if possible. Binoculars should still help for large, closer birds.",
-        gearPill: "Scope helpful",
-        map: "Shadmoor is drawn as a mostly straight south-shore coastline. The useful view is mainly out over the ocean to the southeast.",
+        shortPlace: "Shadmoor",
+        coordinates: { latitude: 41.04062168, longitude: -71.93324571 },
+        defaultFace: "southeast",
         mapClass: "show-shadmoor",
-        reasons: [
-          "The main viewing direction is southeast over open water.",
-          "The sample wind is coming from the ocean side toward land.",
-          "The viewing note stays cautious because glare and waves can hide distant birds."
-        ],
-        forecast: [
-          {
-            headline: "Best early",
-            summary: "Morning is the best bet before glare and heat shimmer build over the water.",
-            birds: "Ocean wind may help.",
-            view: "Some glare later.",
-            gear: "Scope helpful."
-          },
-          {
-            headline: "Fair chance",
-            summary: "Still worth a look, but birds may sit farther offshore if the wind eases.",
-            birds: "Some close birds possible.",
-            view: "Clearer water view.",
-            gear: "Binoculars plus scope."
-          },
-          {
-            headline: "Lower key",
-            summary: "A calmer setup may be pleasant for scanning but less likely to push seabirds close.",
-            birds: "Less wind help.",
-            view: "Easier scanning.",
-            gear: "Binoculars okay."
+        mapCopy: "Shadmoor is a mostly one-direction seawatch. You stand on the south shore and scan the ocean to the southeast.",
+        mapPoint: { x: 246, y: 136, lineId: "shadmoor-wind-line", labelId: "shadmoor-wind-label", viewId: "shadmoor-view-area" },
+        faces: {
+          southeast: {
+            label: "South-southeast water",
+            shortLabel: "south-southeast",
+            viewAzimuth: 165,
+            exposure: "open ocean",
+            water: { latitude: 40.99, longitude: -71.88 },
+            mapClass: "show-shadmoor",
+            copy: "The useful Shadmoor view is mainly southeast over open Atlantic water."
           }
-        ]
+        }
       },
       montauk: {
         place: "Montauk Point",
-        heading: "Birds may be closer, but viewing may be rough.",
-        summary: "Montauk Point is different: you can face north water, east water, or south water depending on wind, light, and where birds are moving.",
-        birds: "Likely better than average. Exposed points can concentrate moving seabirds.",
-        birdsPill: "Good sign",
-        view: "Difficult. Whitecaps, spray, or scope shake may make identification frustrating.",
-        viewPill: "Harder view",
-        gear: "A full-size scope and a sheltered spot would help most.",
-        gearPill: "Scope important",
-        map: "Montauk is drawn as a three-sided point. The pale areas show the three broad water faces a seawatcher might choose from.",
+        shortPlace: "Montauk",
+        coordinates: { latitude: 41.07270268, longitude: -71.85994537 },
+        defaultFace: "east",
         mapClass: "show-montauk",
+        mapCopy: "Montauk Point has three useful water faces. The best side changes with wind, light, and where birds are moving.",
+        mapPoint: { x: 330, y: 169, lineId: "montauk-wind-line", labelId: "montauk-wind-label", viewId: "montauk-view-area" },
         faces: {
           north: {
-            summary: "On the north side, you are looking into the sound. This can be useful when birds or wind are working the protected water.",
-            birds: "Possible. This side is more sheltered, so it may be better for steady scanning than for big ocean movement.",
-            birdsPill: "Possible",
-            view: "Usually easier than the exposed ocean side, with less wave clutter.",
-            viewPill: "Cleaner view",
-            gear: "Binoculars may work for closer birds. A scope still helps with distance.",
-            gearPill: "Binoculars okay",
-            map: "The north face looks into the sound. It is not the open Atlantic view, but it can be calmer and easier to scan.",
-            reasons: [
-              "This side faces the protected water north of the point.",
-              "The calmer water can make scanning easier.",
-              "Bird potential is kept modest because this is not the main open-ocean face."
-            ],
-            forecast: [
-              {
-                headline: "Calmer scan",
-                summary: "Good side to check if the ocean face is too rough.",
-                birds: "Modest bird push.",
-                view: "Cleaner water.",
-                gear: "Binoculars useful."
-              },
-              {
-                headline: "Steady viewing",
-                summary: "Best for patient scanning rather than expecting close storm-driven birds.",
-                birds: "Watch for movement.",
-                view: "Generally manageable.",
-                gear: "Scope helpful."
-              },
-              {
-                headline: "Quiet but readable",
-                summary: "A lower-drama option if wind or glare makes the other sides difficult.",
-                birds: "Lower chance.",
-                view: "Comfortable scan.",
-                gear: "Binoculars okay."
-              }
-            ]
+            label: "North water",
+            shortLabel: "north",
+            viewAzimuth: 15,
+            exposure: "sound side",
+            water: { latitude: 41.12, longitude: -71.84 },
+            mapClass: "show-montauk montauk-north",
+            copy: "The north face looks into Block Island Sound. It can be steadier to scan when the open ocean side is too punishing."
           },
           east: {
-            summary: "The east side is the tip of the point. It can be excellent, but wind and waves can also make viewing harder.",
-            birds: "Likely better than average. Exposed points can concentrate moving seabirds.",
-            birdsPill: "Good sign",
-            view: "Difficult. Whitecaps, spray, or scope shake may make identification frustrating.",
-            viewPill: "Harder view",
-            gear: "A full-size scope and a sheltered spot would help most.",
-            gearPill: "Scope important",
-            map: "The east face is the point itself. It gives the broadest ocean exposure, but it can also be the hardest place to hold a scope steady.",
-            reasons: [
-              "This face has the broadest open-ocean exposure.",
-              "Exposed points can concentrate moving seabirds.",
-              "The same exposure can mean whitecaps, spray, and scope shake."
-            ],
-            forecast: [
-              {
-                headline: "Most active",
-                summary: "Best bird signal, with the roughest viewing conditions.",
-                birds: "Good close-bird chance.",
-                view: "Messy water.",
-                gear: "Scope important."
-              },
-              {
-                headline: "Still promising",
-                summary: "Worth checking if wind stays on the ocean side of the point.",
-                birds: "Good movement chance.",
-                view: "Some shake likely.",
-                gear: "Shelter the scope."
-              },
-              {
-                headline: "Watch the comfort",
-                summary: "Birds may still move, but exposure could make long viewing tiring.",
-                birds: "Possible.",
-                view: "Rougher scan.",
-                gear: "Scope helpful."
-              }
-            ]
+            label: "East water",
+            shortLabel: "east",
+            viewAzimuth: 90,
+            exposure: "point",
+            water: { latitude: 41.07, longitude: -71.78 },
+            mapClass: "show-montauk montauk-east",
+            copy: "The east face is the tip of the point. It has the broadest exposure and the clearest dawn-glare trap."
           },
           south: {
-            summary: "The south side faces the open Atlantic. It can be useful when birds are moving along the ocean beach.",
-            birds: "Maybe. This side is most useful when movement is running along the south shore.",
-            birdsPill: "Possible",
-            view: "Mixed. Ocean glare and surf can make small birds hard to pick out.",
-            viewPill: "Mixed",
-            gear: "Bring a scope if you want to identify distant birds over the water.",
-            gearPill: "Scope helpful",
-            map: "The south face looks along the Atlantic side. It is useful when birds are following the ocean shoreline.",
-            reasons: [
-              "This side faces the Atlantic south shore.",
-              "It is most useful when birds are moving along the beach line.",
-              "Surf and glare can make smaller birds harder to identify."
-            ],
-            forecast: [
-              {
-                headline: "Good shoreline watch",
-                summary: "Best if birds are moving along the Atlantic beach line.",
-                birds: "Some close movement.",
-                view: "Glare possible.",
-                gear: "Scope helpful."
-              },
-              {
-                headline: "Mixed signal",
-                summary: "Could be productive, but less obvious than the exposed tip.",
-                birds: "Possible.",
-                view: "Moderate clutter.",
-                gear: "Scope helpful."
-              },
-              {
-                headline: "Pleasant scan",
-                summary: "Good for learning the site even if bird numbers are modest.",
-                birds: "Lower chance.",
-                view: "Readable water.",
-                gear: "Binoculars okay."
-              }
-            ]
+            label: "South water",
+            shortLabel: "south",
+            viewAzimuth: 180,
+            exposure: "open Atlantic",
+            water: { latitude: 41.02, longitude: -71.85 },
+            mapClass: "show-montauk montauk-south",
+            copy: "The south face looks along the Atlantic side. It is useful when birds are moving along the ocean shoreline."
           }
         }
       }
@@ -939,137 +969,1206 @@
 
     const state = {
       site: "shadmoor",
-      face: "east"
+      face: "southeast",
+      window: "dawn",
+      windowLocked: false
     };
 
+    const cache = new Map();
+
     const fields = {
+      sitePicker: document.querySelector("#site-picker"),
+      faceGroup: document.querySelector("#face-group"),
+      facePicker: document.querySelector("#face-picker"),
+      windowPicker: document.querySelector("#window-picker"),
+      reloadButton: document.querySelector("#reload-button"),
+      dataStatus: document.querySelector("#data-status"),
+      readShell: document.querySelector("#read-shell"),
+      readContent: document.querySelector("#read-content"),
       place: document.querySelector("#place-label"),
       heading: document.querySelector("#today-heading"),
-      summary: document.querySelector("#plain-summary"),
+      dailyRead: document.querySelector("#daily-read"),
+      metaStrip: document.querySelector("#meta-strip"),
       birds: document.querySelector("#birds-answer"),
       birdsPill: document.querySelector("#birds-pill"),
       view: document.querySelector("#view-answer"),
       viewPill: document.querySelector("#view-pill"),
       gear: document.querySelector("#gear-answer"),
       gearPill: document.querySelector("#gear-pill"),
-      map: document.querySelector("#map-copy"),
+      windDriver: document.querySelector("#wind-driver"),
+      windCopy: document.querySelector("#wind-copy"),
+      glareDriver: document.querySelector("#glare-driver"),
+      glareCopy: document.querySelector("#glare-copy"),
+      shimmerDriver: document.querySelector("#shimmer-driver"),
+      shimmerCopy: document.querySelector("#shimmer-copy"),
+      waterDriver: document.querySelector("#water-driver"),
+      waterCopy: document.querySelector("#water-copy"),
       mapBox: document.querySelector("#simple-map"),
-      faceControls: document.querySelector("#face-controls"),
-      faceCopy: document.querySelector("#face-copy"),
-      forecastDays: document.querySelector("#forecast-days"),
-      whyList: document.querySelector("#why-list")
+      mapPlaceLabel: document.querySelector("#map-place-label"),
+      forecastDays: document.querySelector("#forecast-days")
     };
 
-    function getActiveProfile() {
-      const site = sites[state.site];
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
 
-      if (site.faces) {
+    function scale(value, min, max) {
+      if (!Number.isFinite(value)) {
+        return 0;
+      }
+
+      return clamp((value - min) / (max - min), 0, 1);
+    }
+
+    function round(value, digits = 0) {
+      if (!Number.isFinite(value)) {
+        return "--";
+      }
+
+      const factor = 10 ** digits;
+      return Math.round(value * factor) / factor;
+    }
+
+    function average(values) {
+      const usable = values.filter(Number.isFinite);
+      if (!usable.length) {
+        return null;
+      }
+
+      return usable.reduce((sum, value) => sum + value, 0) / usable.length;
+    }
+
+    function max(values) {
+      const usable = values.filter(Number.isFinite);
+      return usable.length ? Math.max(...usable) : null;
+    }
+
+    function min(values) {
+      const usable = values.filter(Number.isFinite);
+      return usable.length ? Math.min(...usable) : null;
+    }
+
+    function angleDiff(a, b) {
+      if (!Number.isFinite(a) || !Number.isFinite(b)) {
+        return 180;
+      }
+
+      return Math.abs(((a - b + 540) % 360) - 180);
+    }
+
+    function circularMean(values) {
+      const usable = values.filter(Number.isFinite);
+      if (!usable.length) {
+        return null;
+      }
+
+      const radians = usable.map((value) => value * Math.PI / 180);
+      const sin = average(radians.map(Math.sin));
+      const cos = average(radians.map(Math.cos));
+      return (Math.atan2(sin, cos) * 180 / Math.PI + 360) % 360;
+    }
+
+    function compass(degrees) {
+      if (!Number.isFinite(degrees)) {
+        return "--";
+      }
+
+      const labels = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+      return labels[Math.round(degrees / 22.5) % 16];
+    }
+
+    function dateLabel(dateString, timezone, dayIndex, firstIndex) {
+      const date = new Date(dateString + "T12:00:00");
+      const label = new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: timezone || undefined
+      }).format(date);
+
+      if (dayIndex === 0 && firstIndex === 0) {
+        return "Today, " + label;
+      }
+
+      if (dayIndex === 1 || (dayIndex === 0 && firstIndex === 1)) {
+        return "Tomorrow, " + label;
+      }
+
+      return label;
+    }
+
+    function getZonedHour(timezone) {
+      const formatted = new Intl.DateTimeFormat("en-US", {
+        timeZone: timezone || "America/New_York",
+        hour: "numeric",
+        hourCycle: "h23"
+      }).format(new Date());
+
+      return Number.parseInt(formatted, 10);
+    }
+
+    function parseHour(isoTime) {
+      return Number.parseInt(isoTime.slice(11, 13), 10);
+    }
+
+    function dayOfYear(year, month, day) {
+      const current = Date.UTC(year, month - 1, day);
+      const start = Date.UTC(year, 0, 0);
+      return Math.floor((current - start) / 86400000);
+    }
+
+    function parseLocalIso(isoTime) {
+      return {
+        year: Number.parseInt(isoTime.slice(0, 4), 10),
+        month: Number.parseInt(isoTime.slice(5, 7), 10),
+        day: Number.parseInt(isoTime.slice(8, 10), 10),
+        hour: Number.parseInt(isoTime.slice(11, 13), 10),
+        minute: Number.parseInt(isoTime.slice(14, 16) || "0", 10)
+      };
+    }
+
+    function solarPosition(localIso, latitude, longitude, utcOffsetSeconds) {
+      const parts = parseLocalIso(localIso);
+      const lat = latitude * Math.PI / 180;
+      const doy = dayOfYear(parts.year, parts.month, parts.day);
+      const localHour = parts.hour + parts.minute / 60;
+      const gamma = 2 * Math.PI / 365 * (doy - 1 + (localHour - 12) / 24);
+      const equationOfTime = 229.18 * (
+        0.000075 +
+        0.001868 * Math.cos(gamma) -
+        0.032077 * Math.sin(gamma) -
+        0.014615 * Math.cos(2 * gamma) -
+        0.040849 * Math.sin(2 * gamma)
+      );
+      const declination =
+        0.006918 -
+        0.399912 * Math.cos(gamma) +
+        0.070257 * Math.sin(gamma) -
+        0.006758 * Math.cos(2 * gamma) +
+        0.000907 * Math.sin(2 * gamma) -
+        0.002697 * Math.cos(3 * gamma) +
+        0.00148 * Math.sin(3 * gamma);
+      const timezoneOffsetHours = utcOffsetSeconds / 3600;
+      const timeOffset = equationOfTime + 4 * longitude - 60 * timezoneOffsetHours;
+      let trueSolarTime = localHour * 60 + timeOffset;
+      trueSolarTime = ((trueSolarTime % 1440) + 1440) % 1440;
+      let hourAngle = trueSolarTime / 4 - 180;
+
+      if (hourAngle < -180) {
+        hourAngle += 360;
+      }
+
+      const hourAngleRad = hourAngle * Math.PI / 180;
+      const cosZenith = clamp(
+        Math.sin(lat) * Math.sin(declination) +
+        Math.cos(lat) * Math.cos(declination) * Math.cos(hourAngleRad),
+        -1,
+        1
+      );
+      const zenith = Math.acos(cosZenith);
+      const elevation = 90 - zenith * 180 / Math.PI;
+      const azDenom = Math.cos(lat) * Math.sin(zenith);
+      let azimuth = 180;
+
+      if (Math.abs(azDenom) > 0.001) {
+        const azRad = Math.acos(clamp((Math.sin(lat) * Math.cos(zenith) - Math.sin(declination)) / azDenom, -1, 1));
+        const azDeg = azRad * 180 / Math.PI;
+        azimuth = hourAngle > 0 ? (azDeg + 180) % 360 : (540 - azDeg) % 360;
+      }
+
+      return { azimuth, elevation };
+    }
+
+    function windowHours(windowKey, sunriseIso) {
+      if (windowKey !== "dawn" || !sunriseIso) {
+        return WATCH_WINDOWS[windowKey].fallbackHours;
+      }
+
+      const sunriseHour = parseHour(sunriseIso);
+      return [sunriseHour, sunriseHour + 1, sunriseHour + 2].filter((hour) => hour >= 4 && hour <= 9);
+    }
+
+    function suggestedWindowForNow(currentHour) {
+      const targetHour = currentHour + 1;
+
+      if (targetHour <= 7) {
+        return "dawn";
+      }
+
+      if (targetHour <= 10) {
+        return "morning";
+      }
+
+      if (targetHour <= 14) {
+        return "midday";
+      }
+
+      if (targetHour <= 18) {
+        return "afternoon";
+      }
+
+      return "dawn";
+    }
+
+    function buildUrl(endpoint, params) {
+      const url = new URL(endpoint);
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+      return url.toString();
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.reason || "Forecast request failed.");
+      }
+
+      return data;
+    }
+
+    function activeSite() {
+      return sites[state.site];
+    }
+
+    function activeFace() {
+      const site = activeSite();
+      return site.faces[state.face] || site.faces[site.defaultFace];
+    }
+
+    function cacheKey() {
+      return state.site + ":" + state.face;
+    }
+
+    async function loadForecast(force = false) {
+      const key = cacheKey();
+      if (!force && cache.has(key)) {
+        return cache.get(key);
+      }
+
+      const site = activeSite();
+      const face = activeFace();
+      const weatherUrl = buildUrl(WEATHER_ENDPOINT, {
+        latitude: site.coordinates.latitude,
+        longitude: site.coordinates.longitude,
+        hourly: "temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,shortwave_radiation",
+        daily: "sunrise,sunset,uv_index_max,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max",
+        temperature_unit: "fahrenheit",
+        wind_speed_unit: "mph",
+        precipitation_unit: "inch",
+        timezone: "auto",
+        forecast_days: "4"
+      });
+      const marineUrl = buildUrl(MARINE_ENDPOINT, {
+        latitude: face.water.latitude,
+        longitude: face.water.longitude,
+        hourly: "wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height,wind_wave_direction,wind_wave_period",
+        daily: "wave_height_max,swell_wave_height_max,wave_period_max",
+        length_unit: "imperial",
+        timezone: "auto",
+        forecast_days: "4"
+      });
+
+      const result = Promise.all([fetchJson(weatherUrl), fetchJson(marineUrl)]).then(([weather, marine]) => ({
+        weather,
+        marine,
+        fetchedAt: new Date()
+      }));
+      cache.set(key, result);
+      return result;
+    }
+
+    function hourlyRows(hourly, fieldsForRows) {
+      return hourly.time.map((time, index) => {
+        const row = { time };
+        fieldsForRows.forEach((field) => {
+          row[field] = hourly[field] ? hourly[field][index] : null;
+        });
+        return row;
+      });
+    }
+
+    function rowsForWindow(rows, dateString, hours) {
+      const wanted = new Set(hours);
+      return rows.filter((row) => row.time.slice(0, 10) === dateString && wanted.has(parseHour(row.time)));
+    }
+
+    function aggregateWeather(rows, site, dateString, hours, utcOffsetSeconds) {
+      const selected = rowsForWindow(rows, dateString, hours);
+      const fallback = rows.filter((row) => row.time.slice(0, 10) === dateString && parseHour(row.time) >= 5 && parseHour(row.time) <= 18);
+      const usable = selected.length ? selected : fallback;
+      const solarSamples = usable.map((row) => ({
+        ...solarPosition(row.time, site.coordinates.latitude, site.coordinates.longitude, utcOffsetSeconds),
+        cloudCover: row.cloud_cover,
+        shortwave: row.shortwave_radiation,
+        time: row.time
+      }));
+
+      return {
+        rows: usable,
+        temp: average(usable.map((row) => row.temperature_2m)),
+        apparentTemp: average(usable.map((row) => row.apparent_temperature)),
+        humidity: average(usable.map((row) => row.relative_humidity_2m)),
+        dewPoint: average(usable.map((row) => row.dew_point_2m)),
+        precipProbability: max(usable.map((row) => row.precipitation_probability)),
+        precipitation: average(usable.map((row) => row.precipitation)),
+        cloudCover: average(usable.map((row) => row.cloud_cover)),
+        visibility: min(usable.map((row) => row.visibility)),
+        windSpeed: average(usable.map((row) => row.wind_speed_10m)),
+        windDirection: circularMean(usable.map((row) => row.wind_direction_10m)),
+        windGust: max(usable.map((row) => row.wind_gusts_10m)),
+        solarRadiation: average(usable.map((row) => row.shortwave_radiation)),
+        weatherCode: max(usable.map((row) => row.weather_code)),
+        solarSamples
+      };
+    }
+
+    function aggregateMarine(rows, dateString, hours) {
+      const selected = rowsForWindow(rows, dateString, hours);
+      const fallback = rows.filter((row) => row.time.slice(0, 10) === dateString && parseHour(row.time) >= 5 && parseHour(row.time) <= 18);
+      const usable = selected.length ? selected : fallback;
+
+      return {
+        rows: usable,
+        waveHeight: average(usable.map((row) => row.wave_height)),
+        waveDirection: circularMean(usable.map((row) => row.wave_direction)),
+        wavePeriod: average(usable.map((row) => row.wave_period)),
+        swellHeight: average(usable.map((row) => row.swell_wave_height)),
+        swellDirection: circularMean(usable.map((row) => row.swell_wave_direction)),
+        swellPeriod: average(usable.map((row) => row.swell_wave_period)),
+        windWaveHeight: average(usable.map((row) => row.wind_wave_height)),
+        windWaveDirection: circularMean(usable.map((row) => row.wind_wave_direction)),
+        windWavePeriod: average(usable.map((row) => row.wind_wave_period))
+      };
+    }
+
+    function windRelation(windDirection, viewAzimuth) {
+      const diff = angleDiff(windDirection, viewAzimuth);
+      const offshoreDiff = angleDiff(windDirection, (viewAzimuth + 180) % 360);
+
+      if (diff <= 35) {
         return {
-          ...site,
-          ...site.faces[state.face],
-          mapClass: site.mapClass + " montauk-" + state.face
+          label: "onshore",
+          score: 28,
+          tone: "good",
+          copy: "coming in from the water you are scanning"
         };
       }
 
-      return site;
+      if (diff <= 70) {
+        return {
+          label: "water-side",
+          score: 18,
+          tone: "good",
+          copy: "has a useful water-side component"
+        };
+      }
+
+      if (offshoreDiff <= 65) {
+        return {
+          label: "offshore",
+          score: -15,
+          tone: "low",
+          copy: "coming off the land, which often lets birds sit farther out"
+        };
+      }
+
+      return {
+        label: "crosswind",
+        score: 4,
+        tone: "mixed",
+        copy: "mostly crossing the view"
+      };
     }
 
-    function getForecastDates() {
-      const now = new Date();
-      const firstOffset = now.getHours() < 12 ? 0 : 1;
-      const formatter = new Intl.DateTimeFormat(undefined, {
-        weekday: "short",
-        month: "short",
-        day: "numeric"
-      });
+    function seasonSignal(dateString) {
+      const month = Number.parseInt(dateString.slice(5, 7), 10);
 
-      return [0, 1, 2].map((step) => {
-        const offset = firstOffset + step;
-        const date = new Date(now);
-        date.setDate(now.getDate() + offset);
+      if ([8, 9, 10, 11].includes(month)) {
+        return {
+          score: 8,
+          label: "migration season",
+          copy: "The season gives the bird signal a little extra weight."
+        };
+      }
 
-        let label = formatter.format(date);
-        if (offset === 0) {
-          label = "Today, " + label;
-        } else if (offset === 1) {
-          label = "Tomorrow, " + label;
-        } else if (offset === 2) {
-          label = "Next day, " + label;
+      if ([12, 1, 2].includes(month)) {
+        return {
+          score: 5,
+          label: "winter movement",
+          copy: "The season can still reward a watch, especially around weather."
+        };
+      }
+
+      if ([5, 6, 7].includes(month)) {
+        return {
+          score: 3,
+          label: "summer movement",
+          copy: "The season is more selective, so the weather signal matters."
+        };
+      }
+
+      return {
+        score: 1,
+        label: "shoulder season",
+        copy: "The season is not doing much of the work by itself."
+      };
+    }
+
+    function glareSignal(weather, marine, face) {
+      const cloudFactor = 1 - clamp((weather.cloudCover || 0) / 100, 0, 1);
+      const waterTexture = clamp(((marine.waveHeight || 0) + (marine.windWaveHeight || 0)) / 5, 0.35, 1.15);
+      const scores = weather.solarSamples.map((sample) => {
+        if (sample.elevation <= 0) {
+          return 0;
         }
 
-        return label;
+        const alignment = angleDiff(sample.azimuth, face.viewAzimuth);
+        const alignmentFactor =
+          alignment <= 22 ? 1 :
+          alignment <= 40 ? 0.74 :
+          alignment <= 65 ? 0.42 :
+          alignment <= 90 ? 0.18 : 0.04;
+        const lowSunFactor =
+          sample.elevation <= 8 ? 1 :
+          sample.elevation <= 18 ? 0.88 :
+          sample.elevation <= 32 ? 0.52 :
+          sample.elevation <= 48 ? 0.28 : 0.12;
+        const directLight = 0.48 + cloudFactor * 0.62;
+        const radiationBoost = 0.76 + scale(sample.shortwave || 0, 180, 720) * 0.34;
+        return 100 * alignmentFactor * lowSunFactor * directLight * radiationBoost * waterTexture;
       });
+      const score = clamp(max(scores) || 0, 0, 100);
+      const worstSample = weather.solarSamples[scores.indexOf(max(scores) || 0)] || weather.solarSamples[0];
+      const label =
+        score >= 72 ? "High" :
+        score >= 48 ? "Watch" :
+        score >= 25 ? "Some" : "Low";
+
+      return {
+        score,
+        label,
+        tone: score >= 72 ? "hard" : score >= 48 ? "mixed" : score >= 25 ? "mixed" : "good",
+        sunAzimuth: worstSample ? worstSample.azimuth : null,
+        sunElevation: worstSample ? worstSample.elevation : null
+      };
     }
 
-    function renderForecast(forecast) {
-      const labels = getForecastDates();
+    function shimmerSignal(weather) {
+      const heat = scale(weather.apparentTemp || weather.temp || 0, 74, 91);
+      const dew = scale(weather.dewPoint || 0, 59, 72);
+      const humidity = scale(weather.humidity || 0, 62, 88);
+      const sun = scale(weather.solarRadiation || 0, 320, 760);
+      const calm = 1 - scale(weather.windSpeed || 0, 5, 16);
+      const score = clamp(100 * (heat * 0.34 + dew * 0.21 + humidity * 0.15 + sun * 0.2 + calm * 0.1), 0, 100);
+      const label =
+        score >= 70 ? "High" :
+        score >= 48 ? "Watch" :
+        score >= 26 ? "Some" : "Low";
 
-      fields.forecastDays.innerHTML = forecast.map((day, index) => `
+      return {
+        score,
+        label,
+        tone: score >= 70 ? "hard" : score >= 48 ? "mixed" : score >= 26 ? "mixed" : "good"
+      };
+    }
+
+    function visibilityMiles(feet) {
+      if (!Number.isFinite(feet)) {
+        return null;
+      }
+
+      return feet / 5280;
+    }
+
+    function analyzeWindow(context) {
+      const { dateString, windowKey, site, face, weatherRows, marineRows, weatherData } = context;
+      const rawHours = windowHours(windowKey, weatherData.daily.sunrise[context.dayIndex]);
+      const useTodayRemainder = context.useRemaining && context.dayIndex === 0;
+      const remainingHours = useTodayRemainder
+        ? rawHours.filter((hour) => hour >= context.currentHour + 1)
+        : rawHours;
+      const available = !useTodayRemainder || remainingHours.length > 0;
+      const hours = remainingHours.length ? remainingHours : rawHours;
+      const weather = aggregateWeather(weatherRows, site, dateString, hours, weatherData.utc_offset_seconds || 0);
+      const marine = aggregateMarine(marineRows, dateString, hours);
+      const relation = windRelation(weather.windDirection, face.viewAzimuth);
+      const season = seasonSignal(dateString);
+      const glare = glareSignal(weather, marine, face);
+      const shimmer = shimmerSignal(weather);
+      const miles = visibilityMiles(weather.visibility);
+      const wave = marine.waveHeight || 0;
+      const windSpeed = weather.windSpeed || 0;
+      const gust = weather.windGust || 0;
+      const precip = weather.precipProbability || 0;
+      const foggy = [45, 48].includes(Math.round(weather.weatherCode || 0));
+      const rainy = precip >= 55 || (weather.precipitation || 0) > 0.03;
+      const birdScore = clamp(
+        42 +
+        relation.score +
+        season.score +
+        (windSpeed >= 9 && windSpeed <= 23 ? 11 : 0) +
+        (windSpeed > 23 && windSpeed <= 32 ? 6 : 0) +
+        (wave >= 2 && wave <= 5.5 ? 7 : 0) +
+        (wave > 5.5 ? 3 : 0) -
+        (windSpeed < 5 ? 6 : 0) -
+        (rainy ? 4 : 0),
+        0,
+        100
+      );
+      const viewScore = clamp(
+        74 +
+        (miles !== null && miles >= 8 ? 10 : 0) -
+        (miles !== null && miles < 5 ? 18 : 0) -
+        (miles !== null && miles < 2 ? 24 : 0) -
+        (wave > 3.5 ? 9 : 0) -
+        (wave > 6 ? 14 : 0) -
+        (windSpeed > 18 ? 8 : 0) -
+        (gust > 28 ? 10 : 0) -
+        (glare.score > 48 ? 13 : 0) -
+        (glare.score > 72 ? 9 : 0) -
+        (shimmer.score > 48 ? 11 : 0) -
+        (shimmer.score > 70 ? 10 : 0) -
+        (foggy ? 35 : 0) -
+        (rainy ? 14 : 0),
+        0,
+        100
+      );
+      const comfortScore = clamp(
+        76 -
+        (gust > 26 ? 10 : 0) -
+        (gust > 36 ? 14 : 0) -
+        (rainy ? 18 : 0) -
+        ((weather.apparentTemp || 0) > 88 ? 8 : 0) -
+        ((weather.apparentTemp || 0) < 38 ? 8 : 0),
+        0,
+        100
+      );
+      const overall = clamp(birdScore * 0.52 + viewScore * 0.36 + comfortScore * 0.12, 0, 100);
+      const rating = ratingFromScores(overall, birdScore, viewScore);
+      const bestUse = bestUseFromScores(birdScore, viewScore);
+
+      return {
+        dateString,
+        windowKey,
+        windowLabel: WATCH_WINDOWS[windowKey].label,
+        hours,
+        available,
+        weather,
+        marine,
+        relation,
+        season,
+        glare,
+        shimmer,
+        birdScore,
+        viewScore,
+        comfortScore,
+        overall,
+        rating,
+        bestUse,
+        miles,
+        wave,
+        windSpeed,
+        gust,
+        precip,
+        foggy,
+        rainy
+      };
+    }
+
+    function ratingFromScores(overall, birdScore, viewScore) {
+      if (birdScore >= 72 && viewScore < 48) {
+        return {
+          label: "Promising but hard",
+          shortLabel: "Hard",
+          tone: "mixed",
+          heading: "The view may fight you"
+        };
+      }
+
+      if (overall >= 78) {
+        return {
+          label: "Strong watch",
+          shortLabel: "Strong",
+          tone: "strong",
+          heading: "This looks like a strong seawatch window."
+        };
+      }
+
+      if (overall >= 62) {
+        return {
+          label: "Worth trying",
+          shortLabel: "Good",
+          tone: "good",
+          heading: "Worth trying"
+        };
+      }
+
+      if (overall >= 46) {
+        return {
+          label: "Mixed signal",
+          shortLabel: "Mixed",
+          tone: "mixed",
+          heading: "A mixed read, with a few catches."
+        };
+      }
+
+      return {
+        label: "Low signal",
+        shortLabel: "Low",
+        tone: "low",
+        heading: "Probably a lower-key watch."
+      };
+    }
+
+    function bestUseFromScores(birdScore, viewScore) {
+      if (birdScore >= 70 && viewScore >= 60) {
+        return "Go for birds and IDs.";
+      }
+
+      if (birdScore >= 70) {
+        return "Go for movement, expect difficult IDs.";
+      }
+
+      if (viewScore >= 70) {
+        return "Good learning scan, lower bird push.";
+      }
+
+      if (birdScore >= 52) {
+        return "Possible movement, patient scanning.";
+      }
+
+      return "Scout the site, keep expectations light.";
+    }
+
+    function chooseBestWindow(context) {
+      const analyses = Object.keys(WATCH_WINDOWS).map((windowKey) => analyzeWindow({ ...context, windowKey }));
+      const available = analyses.filter((analysis) => analysis.available);
+      return (available.length ? available : analyses).sort((a, b) => b.overall - a.overall)[0];
+    }
+
+    function analyzeForecast(data) {
+      const site = activeSite();
+      const face = activeFace();
+      const weatherRows = hourlyRows(data.weather.hourly, [
+        "temperature_2m",
+        "relative_humidity_2m",
+        "dew_point_2m",
+        "apparent_temperature",
+        "precipitation_probability",
+        "precipitation",
+        "weather_code",
+        "cloud_cover",
+        "visibility",
+        "wind_speed_10m",
+        "wind_direction_10m",
+        "wind_gusts_10m",
+        "shortwave_radiation"
+      ]);
+      const marineRows = hourlyRows(data.marine.hourly, [
+        "wave_height",
+        "wave_direction",
+        "wave_period",
+        "swell_wave_height",
+        "swell_wave_direction",
+        "swell_wave_period",
+        "wind_wave_height",
+        "wind_wave_direction",
+        "wind_wave_period"
+      ]);
+      const currentHour = getZonedHour(data.weather.timezone);
+      if (!state.windowLocked) {
+        state.window = suggestedWindowForNow(currentHour);
+        setActiveButtons();
+      }
+
+      const firstIndex = currentHour + 1 > 18 ? 1 : 0;
+      const days = data.weather.daily.time.slice(firstIndex, firstIndex + 3).map((dateString, offset) => {
+        const dayIndex = firstIndex + offset;
+        const context = {
+          dateString,
+          dayIndex,
+          site,
+          face,
+          weatherRows,
+          marineRows,
+          weatherData: data.weather,
+          currentHour,
+          useRemaining: firstIndex === 0
+        };
+        const selected = analyzeWindow({ ...context, windowKey: state.window });
+        const best = chooseBestWindow(context);
+        const daily = data.weather.daily;
+
+        return {
+          ...selected,
+          label: dateLabel(dateString, data.weather.timezone, dayIndex, firstIndex),
+          bestWindow: best,
+          dailyHigh: daily.temperature_2m_max ? daily.temperature_2m_max[dayIndex] : null,
+          dailyLow: daily.temperature_2m_min ? daily.temperature_2m_min[dayIndex] : null,
+          dailyRain: daily.precipitation_probability_max ? daily.precipitation_probability_max[dayIndex] : null,
+          sunrise: daily.sunrise ? daily.sunrise[dayIndex] : null,
+          sunset: daily.sunset ? daily.sunset[dayIndex] : null,
+          read: null
+        };
+      });
+
+      days.forEach((day) => {
+        day.read = dailyRead(day, site, face);
+      });
+
+      return {
+        site,
+        face,
+        days,
+        timezone: data.weather.timezone,
+        fetchedAt: data.fetchedAt
+      };
+    }
+
+    function dailyRead(day, site, face) {
+      const opening = openingSentence(day);
+      const wind = windSentence(day, face);
+      const visibility = visibilitySentence(day);
+      const hazard = hazardSentence(day, face);
+      const gear = gearSentence(day);
+
+      return [opening, wind, visibility, hazard, gear].filter(Boolean).join(" ");
+    }
+
+    function openingSentence(day) {
+      if (day.rating.tone === "strong") {
+        return "This is the kind of setup worth making time for, especially around " + day.bestWindow.windowLabel.toLowerCase() + ".";
+      }
+
+      if (day.rating.label === "Promising but hard") {
+        return "This has real bird potential, but it asks for patience and a sheltered stance.";
+      }
+
+      if (day.rating.tone === "good") {
+        return "This looks worth trying, with the best opening around " + day.bestWindow.windowLabel.toLowerCase() + ".";
+      }
+
+      if (day.rating.tone === "mixed") {
+        return "This is a mixed day: there is something to work with, but the viewing will not be clean all the way through.";
+      }
+
+      return "I would treat this as a lower-pressure scan rather than a must-go watch.";
+    }
+
+    function windSentence(day, face) {
+      const wind = compass(day.weather.windDirection) + " " + round(day.windSpeed) + " mph";
+      return "The wind is forecast " + wind + ", which is " + day.relation.copy + " for the " + face.shortLabel + " view.";
+    }
+
+    function visibilitySentence(day) {
+      const miles = day.miles === null ? "uncertain" : round(day.miles, 1) + " mi";
+      const wave = Number.isFinite(day.wave) ? round(day.wave, 1) + " ft" : "unknown";
+
+      if (day.foggy) {
+        return "Fog or low visibility is the main viewing problem, so distant birds may disappear quickly.";
+      }
+
+      if (day.viewScore >= 68) {
+        return "Visibility should let you work out to about " + miles + ", and seas near " + wave + " look manageable for scanning.";
+      }
+
+      const issues = [];
+
+      if (day.miles !== null && day.miles < 5) {
+        issues.push("visibility around " + miles + " will shorten the useful view");
+      } else if (day.miles !== null && day.miles < 8) {
+        issues.push("visibility around " + miles + " may make distant birds harder to hold");
+      }
+
+      if (Number.isFinite(day.wave) && day.wave > 5) {
+        issues.push("seas near " + wave + " will add wave clutter");
+      } else if (Number.isFinite(day.wave) && day.wave > 3.5) {
+        issues.push("seas near " + wave + " may add some wave clutter");
+      }
+
+      if (day.gust > 30) {
+        issues.push("gusts near " + round(day.gust) + " mph could shake an exposed scope");
+      }
+
+      if (!issues.length) {
+        return "The view is mixed, but there is no single visibility, water-state, or wind problem carrying the whole forecast.";
+      }
+
+      return "The viewing problem is " + joinHuman(issues) + ".";
+    }
+
+    function hazardSentence(day, face) {
+      const hazards = [];
+
+      if (day.glare.score >= 62) {
+        hazards.push("sun glare is a real issue for this " + face.shortLabel + " angle");
+      } else if (day.glare.score >= 42) {
+        hazards.push("glare could interrupt parts of the watch");
+      }
+
+      if (day.shimmer.score >= 62) {
+        hazards.push("heat shimmer may soften distant birds");
+      } else if (day.shimmer.score >= 42) {
+        hazards.push("some shimmer is possible as the sun builds");
+      }
+
+      if (day.rainy) {
+        hazards.push("showers could shorten the watch");
+      }
+
+      if (!hazards.length) {
+        return "Glare and shimmer do not look like the main viewing problems for this window.";
+      }
+
+      return "The thing to watch is " + joinHuman(hazards) + ".";
+    }
+
+    function gearSentence(day) {
+      if (day.viewScore < 45 || day.windGust > 30 || day.wave > 5) {
+        return "Bring a full-size scope if you can, and think about wind shelter before you start scanning.";
+      }
+
+      if (day.birdScore >= 62) {
+        return "A scope is still the right tool, but binoculars should stay useful for close or larger birds.";
+      }
+
+      return "Binoculars are enough for a casual check; bring a scope if you want to study distant movement.";
+    }
+
+    function joinHuman(items) {
+      if (items.length <= 1) {
+        return items[0] || "";
+      }
+
+      if (items.length === 2) {
+        return items[0] + " and " + items[1];
+      }
+
+      return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+    }
+
+    function birdAnswer(day) {
+      if (day.birdScore >= 72) {
+        return "Likely better than average. The wind and water setup favor birds being closer to shore than on a neutral day.";
+      }
+
+      if (day.birdScore >= 55) {
+        return "Possible. There is enough signal to justify a look, especially if movement is already happening along the coast.";
+      }
+
+      return "Less likely. The setup is not doing much to push birds into easy shore range.";
+    }
+
+    function viewAnswer(day) {
+      if (day.viewScore >= 70) {
+        return "Mostly yes. Visibility and water texture look manageable for steady scanning.";
+      }
+
+      if (day.viewScore >= 48) {
+        return "Somewhat. Distance may be workable, but glare, shimmer, wave clutter, or gusts could make IDs fussy.";
+      }
+
+      return "Probably not cleanly. The forecast suggests a hard view for small or distant birds.";
+    }
+
+    function gearAnswer(day) {
+      if (day.viewScore < 45 || day.windGust > 30) {
+        return "A full-size scope and a sheltered position matter most. Expect wind or wave clutter to slow down IDs.";
+      }
+
+      if (day.birdScore >= 62) {
+        return "Bring a scope if possible. Binoculars should help for close birds, but distance will still matter.";
+      }
+
+      return "Binoculars are fine for a quick check. A scope helps if you want to confirm distant birds.";
+    }
+
+    function visibilityReach(miles) {
+      if (!Number.isFinite(miles)) {
+        return 230;
+      }
+
+      if (miles <= 1) {
+        return 78;
+      }
+
+      if (miles <= 5) {
+        return 78 + scale(miles, 1, 5) * 122;
+      }
+
+      return 200 + scale(miles, 5, 10) * 120;
+    }
+
+    function aperturePath(origin, azimuth, miles) {
+      const farDistance = visibilityReach(miles);
+      const halfAngle = 60;
+      const start = pointAtBearing(origin, azimuth - halfAngle, farDistance);
+      const end = pointAtBearing(origin, azimuth + halfAngle, farDistance);
+
+      return [
+        "M", round(origin.x, 1), round(origin.y, 1),
+        "L", round(start.x, 1), round(start.y, 1),
+        "A", round(farDistance, 1), round(farDistance, 1), 0, 0, 1, round(end.x, 1), round(end.y, 1),
+        "Z"
+      ].join(" ");
+    }
+
+    function pointAtBearing(origin, bearing, distance) {
+      const radians = bearing * Math.PI / 180;
+
+      return {
+        x: origin.x + Math.sin(radians) * distance,
+        y: origin.y - Math.cos(radians) * distance
+      };
+    }
+
+    function toneClass(tone) {
+      return "tone-" + tone;
+    }
+
+    function scoreLabel(score, kind) {
+      if (kind === "bird") {
+        return score >= 72 ? "Good bird signal" : score >= 55 ? "Possible" : "Low signal";
+      }
+
+      if (kind === "view") {
+        return score >= 70 ? "Clean enough" : score >= 48 ? "Mixed view" : "Hard view";
+      }
+
+      return score >= 70 ? "Scope optional" : score >= 48 ? "Scope helpful" : "Scope important";
+    }
+
+    function scoreTone(score, kind) {
+      if (kind === "bird") {
+        return score >= 72 ? "good" : score >= 55 ? "mixed" : "low";
+      }
+
+      if (kind === "view") {
+        return score >= 70 ? "good" : score >= 48 ? "mixed" : "hard";
+      }
+
+      return score >= 70 ? "good" : score >= 48 ? "mixed" : "hard";
+    }
+
+    function setPill(element, text, tone) {
+      element.textContent = text;
+      element.className = "pill " + toneClass(tone);
+    }
+
+    function renderMeta(day, forecast) {
+      const updated = new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+        timeZone: forecast.timezone || undefined
+      }).format(forecast.fetchedAt);
+      fields.metaStrip.innerHTML = [
+        day.label,
+        "Window: " + day.windowLabel,
+        "Best read: " + day.bestWindow.windowLabel,
+        "Updated " + updated
+      ].map((item) => "<span>" + item + "</span>").join("");
+    }
+
+    function renderDrivers(day) {
+      fields.windDriver.textContent = compass(day.weather.windDirection) + " " + round(day.windSpeed);
+      fields.windCopy.textContent = day.relation.copy + "; gusts near " + round(day.gust) + " mph.";
+      fields.glareDriver.textContent = day.glare.label;
+      fields.glareCopy.textContent = day.glare.score >= 48
+        ? "Sun angle and clear sky line up with the " + activeFace().shortLabel + " view enough to matter."
+        : "Sun angle, cloud cover, or both keep glare in the background.";
+      fields.shimmerDriver.textContent = day.shimmer.label;
+      fields.shimmerCopy.textContent = day.shimmer.score >= 48
+        ? "Heat, humidity, and sunlight could soften the horizon."
+        : "Temperature, humidity, or enough mixing wind should keep shimmer modest.";
+      fields.waterDriver.textContent = Number.isFinite(day.wave) ? round(day.wave, 1) + " ft" : "--";
+      fields.waterCopy.textContent = Number.isFinite(day.marine.swellPeriod)
+        ? "Swell period near " + round(day.marine.swellPeriod) + " sec; rougher water can hide small birds."
+        : "Marine data is partial for this window.";
+    }
+
+    function renderMap(day, forecast) {
+      const site = forecast.site;
+      const face = forecast.face;
+      const point = site.mapPoint;
+      const windFrom = day.weather.windDirection || face.viewAzimuth;
+      const length = 94;
+      const radians = windFrom * Math.PI / 180;
+      const x1 = point.x + Math.sin(radians) * length;
+      const y1 = point.y - Math.cos(radians) * length;
+      const line = document.querySelector("#" + point.lineId);
+      const label = document.querySelector("#" + point.labelId);
+      const viewArea = document.querySelector("#" + point.viewId);
+      const dx = point.x - x1;
+      const dy = point.y - y1;
+      const magnitude = Math.hypot(dx, dy) || 1;
+      const labelPadding = 18;
+      const labelX = clamp(x1 - dx / magnitude * labelPadding, 62, 318);
+      const labelY = clamp(y1 - dy / magnitude * labelPadding, 32, 298);
+
+      fields.mapBox.className = "simple-map " + face.mapClass;
+      fields.mapPlaceLabel.textContent = site.place;
+
+      if (viewArea) {
+        viewArea.setAttribute("d", aperturePath(point, face.viewAzimuth, day.miles));
+      }
+
+      if (line) {
+        line.setAttribute("x1", round(x1, 1));
+        line.setAttribute("y1", round(y1, 1));
+        line.setAttribute("x2", point.x);
+        line.setAttribute("y2", point.y);
+      }
+
+      if (label) {
+        label.setAttribute("x", round(labelX, 1));
+        label.setAttribute("y", round(labelY, 1));
+        label.textContent = compass(windFrom) + " " + round(day.windSpeed) + " mph";
+      }
+    }
+
+    function renderMain(forecast) {
+      const day = forecast.days[0];
+
+      fields.place.textContent = forecast.site.place + " - " + forecast.face.label;
+      fields.heading.textContent = day.rating.heading;
+      fields.dailyRead.textContent = day.read;
+      renderMeta(day, forecast);
+
+      fields.birds.textContent = birdAnswer(day);
+      setPill(fields.birdsPill, scoreLabel(day.birdScore, "bird"), scoreTone(day.birdScore, "bird"));
+      fields.view.textContent = viewAnswer(day);
+      setPill(fields.viewPill, scoreLabel(day.viewScore, "view"), scoreTone(day.viewScore, "view"));
+      fields.gear.textContent = gearAnswer(day);
+      setPill(fields.gearPill, scoreLabel(day.viewScore, "gear"), scoreTone(day.viewScore, "gear"));
+
+      renderDrivers(day);
+      renderMap(day, forecast);
+    }
+
+    function renderForecastCards(forecast) {
+      fields.forecastDays.innerHTML = forecast.days.map((day) => `
         <article class="day-card">
-          <time>${labels[index]}</time>
-          <h3>${day.headline}</h3>
-          <p>${day.summary}</p>
+          <time>${day.label}</time>
+          <div>
+            <span class="rating-badge ${toneClass(day.rating.tone)}">${day.rating.label}</span>
+          </div>
+          <h3>${day.bestUse}</h3>
+          <p class="day-read">${day.read}</p>
           <div class="day-detail">
-            <span><strong>Birds:</strong> ${day.birds}</span>
-            <span><strong>Seeing:</strong> ${day.view}</span>
-            <span><strong>Gear:</strong> ${day.gear}</span>
+            <span><strong>${day.windowLabel} wind:</strong> ${compass(day.weather.windDirection)} ${round(day.windSpeed)} mph, gusts ${round(day.gust)} mph</span>
+            <span><strong>Seeing:</strong> ${day.miles === null ? "unknown" : round(day.miles, 1) + " mi"} visibility, glare ${day.glare.label.toLowerCase()}, shimmer ${day.shimmer.label.toLowerCase()}</span>
+            <span><strong>Water:</strong> ${Number.isFinite(day.wave) ? round(day.wave, 1) + " ft seas" : "marine data partial"}</span>
+            <span><strong>Best window:</strong> ${day.bestWindow.windowLabel}</span>
           </div>
         </article>
       `).join("");
     }
 
-    function renderReasons(reasons) {
-      fields.whyList.innerHTML = reasons.map((reason) => `<li>${reason}</li>`).join("");
+    function renderError(error) {
+      fields.readShell.hidden = true;
+      fields.readContent.hidden = false;
+      fields.dataStatus.textContent = "Live forecast unavailable";
+      fields.place.textContent = activeSite().place;
+      fields.heading.textContent = "The live forecast could not load.";
+      fields.dailyRead.innerHTML = "";
+      fields.metaStrip.innerHTML = "";
+      fields.birds.textContent = "No live data is available right now.";
+      fields.view.textContent = "Try refreshing in a moment. The page still works as a static GitHub Pages app.";
+      fields.gear.textContent = "Use a normal marine forecast as a backup before heading out.";
+      setPill(fields.birdsPill, "No data", "hard");
+      setPill(fields.viewPill, "No data", "hard");
+      setPill(fields.gearPill, "Check backup", "mixed");
+      fields.windDriver.textContent = "--";
+      fields.windCopy.textContent = "No wind data loaded.";
+      fields.glareDriver.textContent = "--";
+      fields.glareCopy.textContent = "No sun-angle read loaded.";
+      fields.shimmerDriver.textContent = "--";
+      fields.shimmerCopy.textContent = "No heat-shimmer read loaded.";
+      fields.waterDriver.textContent = "--";
+      fields.waterCopy.textContent = "No marine data loaded.";
+      fields.forecastDays.innerHTML = `<div class="error-box">Live Open-Meteo data did not load: ${error.message}</div>`;
     }
 
-    function setFaceControls() {
-      const isMontauk = state.site === "montauk";
-      fields.faceControls.hidden = !isMontauk;
+    async function render(force = false) {
+      fields.reloadButton.disabled = true;
+      fields.dataStatus.textContent = "Updating live forecast...";
+      fields.readShell.hidden = false;
+      fields.readContent.hidden = true;
 
-      document.querySelectorAll(".face-buttons button").forEach((button) => {
-        button.classList.toggle("is-active", button.dataset.face === state.face);
-      });
-
-      if (isMontauk) {
-        fields.faceCopy.textContent = "Choose which side of Montauk Point you plan to scan.";
+      try {
+        const data = await loadForecast(force);
+        const forecast = analyzeForecast(data);
+        renderMain(forecast);
+        renderForecastCards(forecast);
+        fields.readShell.hidden = true;
+        fields.readContent.hidden = false;
+        fields.dataStatus.textContent = "Live data loaded for " + forecast.site.shortPlace + ".";
+      } catch (error) {
+        renderError(error);
+      } finally {
+        fields.reloadButton.disabled = false;
       }
     }
 
-    function renderSite() {
-      const site = getActiveProfile();
-      fields.place.textContent = site.place;
-      fields.heading.textContent = site.heading;
-      fields.summary.textContent = site.summary;
-      fields.birds.textContent = site.birds;
-      fields.birdsPill.textContent = site.birdsPill;
-      fields.view.textContent = site.view;
-      fields.viewPill.textContent = site.viewPill;
-      fields.gear.textContent = site.gear;
-      fields.gearPill.textContent = site.gearPill;
-      fields.map.textContent = site.map;
-      fields.mapBox.className = "simple-map " + site.mapClass;
-      setFaceControls();
-      renderReasons(site.reasons);
-      renderForecast(site.forecast);
+    function setActiveButtons() {
+      fields.sitePicker.querySelectorAll("button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.site === state.site);
+      });
+      fields.facePicker.querySelectorAll("button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.face === state.face);
+      });
+      fields.windowPicker.querySelectorAll("button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.window === state.window);
+      });
+      fields.faceGroup.hidden = state.site !== "montauk";
     }
 
-    document.querySelectorAll(".site-picker button").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".site-picker button").forEach((item) => item.classList.remove("is-active"));
-        button.classList.add("is-active");
-        state.site = button.dataset.site;
-        renderSite();
-      });
+    fields.sitePicker.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-site]");
+      if (!button) {
+        return;
+      }
+
+      state.site = button.dataset.site;
+      state.face = sites[state.site].defaultFace;
+      setActiveButtons();
+      render();
     });
 
-    document.querySelectorAll(".face-buttons button").forEach((button) => {
-      button.addEventListener("click", () => {
-        state.face = button.dataset.face;
-        renderSite();
-      });
+    fields.facePicker.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-face]");
+      if (!button) {
+        return;
+      }
+
+      state.face = button.dataset.face;
+      setActiveButtons();
+      render();
     });
 
-    renderSite();
+    fields.windowPicker.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-window]");
+      if (!button) {
+        return;
+      }
+
+      state.window = button.dataset.window;
+      state.windowLocked = true;
+      setActiveButtons();
+      render();
+    });
+
+    fields.reloadButton.addEventListener("click", () => {
+      cache.delete(cacheKey());
+      render(true);
+    });
+
+    setActiveButtons();
+    render();
   </script>
 </body>
 </html>

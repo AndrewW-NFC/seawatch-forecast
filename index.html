@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seawatch Forecast</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17222b;
+      --muted: #64727d;
+      --line: #d9e2e6;
+      --panel: #ffffff;
+      --page: #f4f7f7;
+      --deep: #123247;
+      --water: #0b7180;
+      --water-dark: #075766;
+      --land: #d8c79c;
+      --good: #26785e;
+      --mixed: #a56d13;
+      --soft: #e6f1f2;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--page);
+      color: var(--ink);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--deep);
+      font-weight: 800;
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--deep);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+    }
+
+    .mark svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      color: var(--deep);
+      font-size: clamp(34px, 7vw, 64px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .intro {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .site-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .site-picker button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--deep);
+      cursor: pointer;
+      padding: 0 14px;
+      font-weight: 700;
+    }
+
+    .site-picker button.is-active {
+      background: var(--deep);
+      border-color: var(--deep);
+      color: #ffffff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 38px rgba(18, 50, 71, 0.09);
+    }
+
+    .summary {
+      padding: 22px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .summary-top {
+      display: grid;
+      gap: 8px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    .label {
+      color: var(--water);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .summary h2 {
+      color: var(--deep);
+      font-size: clamp(24px, 4vw, 38px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .summary p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .answer-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfdfd;
+    }
+
+    .answer-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: var(--soft);
+      display: grid;
+      place-items: center;
+      color: var(--water-dark);
+    }
+
+    .answer-icon svg {
+      width: 25px;
+      height: 25px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .answer h3 {
+      color: var(--deep);
+      font-size: 18px;
+      line-height: 1.25;
+      margin-bottom: 5px;
+    }
+
+    .answer p {
+      font-size: 15px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 0 10px;
+      margin-top: 10px;
+      background: #e9f5ef;
+      color: var(--good);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .pill.mixed {
+      background: #fbefd9;
+      color: var(--mixed);
+    }
+
+    .map-card {
+      overflow: hidden;
+    }
+
+    .simple-map {
+      position: relative;
+      height: 330px;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, var(--water-dark), var(--water) 58%, #77aaa0);
+    }
+
+    .simple-map::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+
+    .location-map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      z-index: 2;
+    }
+
+    .simple-map.show-shadmoor .shadmoor-map,
+    .simple-map.show-montauk .montauk-map {
+      display: block;
+    }
+
+    .montauk-map .face {
+      opacity: 0.22;
+    }
+
+    .simple-map.montauk-north .face-north,
+    .simple-map.montauk-east .face-east,
+    .simple-map.montauk-south .face-south {
+      opacity: 1;
+    }
+
+    .map-land {
+      fill: var(--land);
+    }
+
+    .map-shade {
+      fill: rgba(88, 112, 66, 0.26);
+    }
+
+    .coast-line {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.74);
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 8;
+    }
+
+    .view-area {
+      fill: rgba(255, 255, 255, 0.34);
+      stroke: rgba(255, 255, 255, 0.6);
+      stroke-width: 1.5;
+    }
+
+    .wind-vector {
+      stroke: #ffffff;
+      stroke-linecap: round;
+      stroke-width: 5;
+      filter: drop-shadow(0 7px 12px rgba(0, 0, 0, 0.25));
+    }
+
+    .viewer-dot {
+      fill: #ffffff;
+      stroke: var(--deep);
+      stroke-width: 5;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
+    }
+
+    .map-label {
+      fill: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(18, 50, 71, 0.72);
+      stroke-linejoin: round;
+      stroke-width: 4;
+    }
+
+    .map-label.dark {
+      fill: var(--deep);
+      stroke: rgba(255, 255, 255, 0.72);
+    }
+
+    .north-arrow {
+      fill: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      opacity: 0.9;
+    }
+
+    .map-caption {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .map-caption h2 {
+      color: var(--deep);
+      font-size: 21px;
+      line-height: 1.15;
+    }
+
+    .map-caption p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: grid;
+      gap: 9px;
+      margin-top: 2px;
+    }
+
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .legend-symbol {
+      width: 34px;
+      height: 22px;
+      flex: 0 0 auto;
+    }
+
+    .legend-symbol.wind-demo {
+      background: var(--water);
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+    }
+
+    .legend-symbol svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .why {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .why h3 {
+      color: var(--deep);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .why ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .why li {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .why li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--water);
+    }
+
+    .face-controls {
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 10px;
+      padding-top: 12px;
+    }
+
+    .face-controls[hidden] {
+      display: none;
+    }
+
+    .face-controls p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .face-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .face-buttons button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+      color: var(--deep);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .face-buttons button.is-active {
+      background: var(--deep);
+      border-color: var(--deep);
+      color: #ffffff;
+    }
+
+    .forecast {
+      margin-top: 18px;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .forecast h2 {
+      color: var(--deep);
+      font-size: 22px;
+    }
+
+    .forecast-note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .forecast-days {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .day-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-height: 190px;
+    }
+
+    .day-card time {
+      color: var(--water);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .day-card h3 {
+      color: var(--deep);
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .day-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .day-detail {
+      display: grid;
+      gap: 5px;
+      margin-top: auto;
+    }
+
+    .day-detail span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .forecast-days {
+        grid-template-columns: 1fr;
+      }
+
+      .map-card {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 24px, 1120px);
+        padding-top: 18px;
+      }
+
+      .answer {
+        grid-template-columns: 1fr;
+      }
+
+      .answer-icon {
+        width: 42px;
+        height: 42px;
+      }
+
+      .simple-map {
+        height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48">
+            <path d="M8 31c7 0 7-5 16-5s9 5 16 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 38c5 0 5-3 11-3s6 3 13 3" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <path d="M24 9l7 13H17L24 9z" fill="currentColor"/>
+          </svg>
+        </div>
+        <span>Seawatch Forecast</span>
+      </div>
+
+      <div>
+        <h1>Is today a good day to watch seabirds from shore?</h1>
+        <p class="intro">Pick a place. The forecast gives three plain answers: whether birds may be close, whether you can see well, and what gear will help.</p>
+      </div>
+
+      <nav class="site-picker" aria-label="Choose a seawatching spot">
+        <button class="is-active" type="button" data-site="shadmoor">Shadmoor</button>
+        <button type="button" data-site="montauk">Montauk Point</button>
+      </nav>
+    </header>
+
+    <main>
+      <div class="layout">
+        <section class="card summary" aria-labelledby="today-heading">
+          <div class="summary-top">
+            <div class="label" id="place-label">Shadmoor State Park</div>
+            <h2 id="today-heading">Worth trying this morning.</h2>
+            <p id="plain-summary">This is a mostly one-direction seawatch. You stand on the south shore and scan the ocean to the southeast.</p>
+          </div>
+
+          <div class="answer-list">
+            <article class="answer">
+              <div class="answer-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M3 13c3-3 6-3 9 0s6 3 9 0"/>
+                  <path d="M6 17c2-2 4-2 6 0s4 2 6 0"/>
+                  <path d="M12 5l4 6H8l4-6z"/>
+                </svg>
+              </div>
+              <div>
+                <h3>Will birds be close?</h3>
+                <p id="birds-answer">Maybe. The wind is coming from the water toward land, which can bring seabirds closer than usual.</p>
+                <span class="pill" id="birds-pill">Good sign</span>
+              </div>
+            </article>
+
+            <article class="answer">
+              <div class="answer-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+                </svg>
+              </div>
+              <div>
+                <h3>Can I see far?</h3>
+                <p id="view-answer">Somewhat. The air is clear enough, but waves and glare may make faraway birds harder to identify.</p>
+                <span class="pill mixed" id="view-pill">Mixed</span>
+              </div>
+            </article>
+
+            <article class="answer">
+              <div class="answer-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 8h7l3 8H7L4 8z"/>
+                  <path d="M14 10h3a3 3 0 0 1 0 6h-1"/>
+                  <path d="M9 16v4"/>
+                  <path d="M6 20h6"/>
+                </svg>
+              </div>
+              <div>
+                <h3>What should I bring?</h3>
+                <p id="gear-answer">Bring a spotting scope if possible. Binoculars should still help for large, closer birds.</p>
+                <span class="pill" id="gear-pill">Scope helpful</span>
+              </div>
+            </article>
+          </div>
+
+          <section class="why" aria-labelledby="why-heading">
+            <h3 id="why-heading">Why this says that</h3>
+            <ul id="why-list"></ul>
+          </section>
+        </section>
+
+        <aside class="card map-card" aria-labelledby="map-heading">
+          <div class="simple-map show-shadmoor" id="simple-map">
+            <svg class="location-map shadmoor-map" viewBox="0 0 380 330" role="img" aria-label="Shadmoor coastline map">
+              <defs>
+                <marker id="arrow-head-shadmoor" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10z" fill="#ffffff"/>
+                </marker>
+              </defs>
+              <polygon class="map-land" points="-10,-10 390,-10 390,125 -10,151"/>
+              <polygon class="map-shade" points="-10,-10 390,-10 390,92 -10,121"/>
+              <path class="coast-line" d="M-8 151 C 92 145, 213 137, 388 125"/>
+              <polygon class="view-area" points="246,136 366,205 296,314 215,235"/>
+              <line class="wind-vector" x1="334" y1="260" x2="260" y2="171" marker-end="url(#arrow-head-shadmoor)"/>
+              <circle class="viewer-dot" cx="246" cy="136" r="9"/>
+              <text class="map-label dark" x="22" y="52">land</text>
+              <text class="map-label" x="277" y="292">ocean to southeast</text>
+              <text class="map-label" x="220" y="120">you</text>
+              <text class="map-label" x="254" y="255">wind from ocean</text>
+              <text class="north-arrow" x="333" y="38">N</text>
+              <path d="M339 48V22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+              <path d="M332 30l7-8 7 8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+
+            <svg class="location-map montauk-map" viewBox="0 0 380 330" role="img" aria-label="Montauk Point coastline map">
+              <defs>
+                <marker id="arrow-head-montauk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10z" fill="#ffffff"/>
+                </marker>
+              </defs>
+              <polygon class="map-land" points="-10,88 72,82 173,86 252,103 330,136 358,171 326,210 252,238 158,249 58,262 -10,278"/>
+              <polygon class="map-shade" points="-10,102 74,97 172,101 246,116 310,143 338,171 314,198 244,222 152,233 54,246 -10,262"/>
+              <path class="coast-line" d="M-8 88 C 83 75, 209 84, 330 136 C 369 153, 370 184, 326 210 C 244 258, 119 246, -8 278"/>
+              <polygon class="view-area face face-north" points="330,136 294,20 372,42 366,150"/>
+              <polygon class="view-area face face-east" points="330,136 375,112 388,214 326,210"/>
+              <polygon class="view-area face face-south" points="326,210 371,252 278,317 246,236"/>
+              <line class="wind-vector" x1="372" y1="160" x2="334" y2="162" marker-end="url(#arrow-head-montauk)"/>
+              <circle class="viewer-dot" cx="330" cy="169" r="9"/>
+              <text class="map-label dark" x="35" y="174">land</text>
+              <text class="map-label" x="206" y="59">north water</text>
+              <text class="map-label" x="293" y="288">south water</text>
+              <text class="map-label" x="294" y="189">you</text>
+              <text class="map-label" x="240" y="153">east water</text>
+              <text class="north-arrow" x="333" y="38">N</text>
+              <path d="M339 48V22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+              <path d="M332 30l7-8 7 8" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <div class="map-caption">
+            <h2 id="map-heading">The shape of the shore matters</h2>
+            <p id="map-copy">Shadmoor is drawn as a mostly straight south-shore coastline. The useful view is mainly out over the ocean to the southeast.</p>
+            <div class="legend">
+              <div>
+                <span class="legend-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 34 22">
+                    <polygon points="3,18 17,3 31,18" fill="rgba(11,113,128,0.2)" stroke="rgba(11,113,128,0.85)" stroke-width="1.5"/>
+                  </svg>
+                </span>
+                Pale wedge: water you are scanning
+              </div>
+              <div>
+                <span class="legend-symbol wind-demo" aria-hidden="true">
+                  <svg viewBox="0 0 34 22">
+                    <line x1="5" y1="17" x2="25" y2="6" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M23 2l7 2-3 7" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                Arrow: wind blowing toward the shore
+              </div>
+              <div>
+                <span class="legend-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 34 22">
+                    <circle cx="17" cy="11" r="7" fill="#ffffff" stroke="#123247" stroke-width="4"/>
+                  </svg>
+                </span>
+                Dot: where you are watching from
+              </div>
+              <div>
+                <span class="legend-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 34 22">
+                    <path d="M2 5h30v12H2z" fill="#d8c79c"/>
+                    <path d="M2 16c8-3 20-2 30-5" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                Tan area: land
+              </div>
+            </div>
+            <div class="face-controls" id="face-controls" hidden>
+              <p id="face-copy">Choose which side of the point you plan to scan.</p>
+              <div class="face-buttons" aria-label="Choose Montauk viewing side">
+                <button type="button" data-face="north">North</button>
+                <button class="is-active" type="button" data-face="east">East</button>
+                <button type="button" data-face="south">South</button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <section class="card forecast" aria-labelledby="forecast-heading">
+        <h2 id="forecast-heading">Three-day forecast</h2>
+        <p class="forecast-note">Before noon, this starts with today. After noon, it starts with tomorrow.</p>
+        <div class="forecast-days" id="forecast-days"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const sites = {
+      shadmoor: {
+        place: "Shadmoor State Park",
+        heading: "Worth trying this morning.",
+        summary: "This is a mostly one-direction seawatch. You stand on the south shore and scan the ocean to the southeast.",
+        birds: "Maybe. The wind is coming from the water toward land, which can bring seabirds closer than usual.",
+        birdsPill: "Good sign",
+        view: "Somewhat. The air is clear enough, but waves and glare may make faraway birds harder to identify.",
+        viewPill: "Mixed",
+        gear: "Bring a spotting scope if possible. Binoculars should still help for large, closer birds.",
+        gearPill: "Scope helpful",
+        map: "Shadmoor is drawn as a mostly straight south-shore coastline. The useful view is mainly out over the ocean to the southeast.",
+        mapClass: "show-shadmoor",
+        reasons: [
+          "The main viewing direction is southeast over open water.",
+          "The sample wind is coming from the ocean side toward land.",
+          "The viewing note stays cautious because glare and waves can hide distant birds."
+        ],
+        forecast: [
+          {
+            headline: "Best early",
+            summary: "Morning is the best bet before glare and heat shimmer build over the water.",
+            birds: "Ocean wind may help.",
+            view: "Some glare later.",
+            gear: "Scope helpful."
+          },
+          {
+            headline: "Fair chance",
+            summary: "Still worth a look, but birds may sit farther offshore if the wind eases.",
+            birds: "Some close birds possible.",
+            view: "Clearer water view.",
+            gear: "Binoculars plus scope."
+          },
+          {
+            headline: "Lower key",
+            summary: "A calmer setup may be pleasant for scanning but less likely to push seabirds close.",
+            birds: "Less wind help.",
+            view: "Easier scanning.",
+            gear: "Binoculars okay."
+          }
+        ]
+      },
+      montauk: {
+        place: "Montauk Point",
+        heading: "Birds may be closer, but viewing may be rough.",
+        summary: "Montauk Point is different: you can face north water, east water, or south water depending on wind, light, and where birds are moving.",
+        birds: "Likely better than average. Exposed points can concentrate moving seabirds.",
+        birdsPill: "Good sign",
+        view: "Difficult. Whitecaps, spray, or scope shake may make identification frustrating.",
+        viewPill: "Harder view",
+        gear: "A full-size scope and a sheltered spot would help most.",
+        gearPill: "Scope important",
+        map: "Montauk is drawn as a three-sided point. The pale areas show the three broad water faces a seawatcher might choose from.",
+        mapClass: "show-montauk",
+        faces: {
+          north: {
+            summary: "On the north side, you are looking into the sound. This can be useful when birds or wind are working the protected water.",
+            birds: "Possible. This side is more sheltered, so it may be better for steady scanning than for big ocean movement.",
+            birdsPill: "Possible",
+            view: "Usually easier than the exposed ocean side, with less wave clutter.",
+            viewPill: "Cleaner view",
+            gear: "Binoculars may work for closer birds. A scope still helps with distance.",
+            gearPill: "Binoculars okay",
+            map: "The north face looks into the sound. It is not the open Atlantic view, but it can be calmer and easier to scan.",
+            reasons: [
+              "This side faces the protected water north of the point.",
+              "The calmer water can make scanning easier.",
+              "Bird potential is kept modest because this is not the main open-ocean face."
+            ],
+            forecast: [
+              {
+                headline: "Calmer scan",
+                summary: "Good side to check if the ocean face is too rough.",
+                birds: "Modest bird push.",
+                view: "Cleaner water.",
+                gear: "Binoculars useful."
+              },
+              {
+                headline: "Steady viewing",
+                summary: "Best for patient scanning rather than expecting close storm-driven birds.",
+                birds: "Watch for movement.",
+                view: "Generally manageable.",
+                gear: "Scope helpful."
+              },
+              {
+                headline: "Quiet but readable",
+                summary: "A lower-drama option if wind or glare makes the other sides difficult.",
+                birds: "Lower chance.",
+                view: "Comfortable scan.",
+                gear: "Binoculars okay."
+              }
+            ]
+          },
+          east: {
+            summary: "The east side is the tip of the point. It can be excellent, but wind and waves can also make viewing harder.",
+            birds: "Likely better than average. Exposed points can concentrate moving seabirds.",
+            birdsPill: "Good sign",
+            view: "Difficult. Whitecaps, spray, or scope shake may make identification frustrating.",
+            viewPill: "Harder view",
+            gear: "A full-size scope and a sheltered spot would help most.",
+            gearPill: "Scope important",
+            map: "The east face is the point itself. It gives the broadest ocean exposure, but it can also be the hardest place to hold a scope steady.",
+            reasons: [
+              "This face has the broadest open-ocean exposure.",
+              "Exposed points can concentrate moving seabirds.",
+              "The same exposure can mean whitecaps, spray, and scope shake."
+            ],
+            forecast: [
+              {
+                headline: "Most active",
+                summary: "Best bird signal, with the roughest viewing conditions.",
+                birds: "Good close-bird chance.",
+                view: "Messy water.",
+                gear: "Scope important."
+              },
+              {
+                headline: "Still promising",
+                summary: "Worth checking if wind stays on the ocean side of the point.",
+                birds: "Good movement chance.",
+                view: "Some shake likely.",
+                gear: "Shelter the scope."
+              },
+              {
+                headline: "Watch the comfort",
+                summary: "Birds may still move, but exposure could make long viewing tiring.",
+                birds: "Possible.",
+                view: "Rougher scan.",
+                gear: "Scope helpful."
+              }
+            ]
+          },
+          south: {
+            summary: "The south side faces the open Atlantic. It can be useful when birds are moving along the ocean beach.",
+            birds: "Maybe. This side is most useful when movement is running along the south shore.",
+            birdsPill: "Possible",
+            view: "Mixed. Ocean glare and surf can make small birds hard to pick out.",
+            viewPill: "Mixed",
+            gear: "Bring a scope if you want to identify distant birds over the water.",
+            gearPill: "Scope helpful",
+            map: "The south face looks along the Atlantic side. It is useful when birds are following the ocean shoreline.",
+            reasons: [
+              "This side faces the Atlantic south shore.",
+              "It is most useful when birds are moving along the beach line.",
+              "Surf and glare can make smaller birds harder to identify."
+            ],
+            forecast: [
+              {
+                headline: "Good shoreline watch",
+                summary: "Best if birds are moving along the Atlantic beach line.",
+                birds: "Some close movement.",
+                view: "Glare possible.",
+                gear: "Scope helpful."
+              },
+              {
+                headline: "Mixed signal",
+                summary: "Could be productive, but less obvious than the exposed tip.",
+                birds: "Possible.",
+                view: "Moderate clutter.",
+                gear: "Scope helpful."
+              },
+              {
+                headline: "Pleasant scan",
+                summary: "Good for learning the site even if bird numbers are modest.",
+                birds: "Lower chance.",
+                view: "Readable water.",
+                gear: "Binoculars okay."
+              }
+            ]
+          }
+        }
+      }
+    };
+
+    const state = {
+      site: "shadmoor",
+      face: "east"
+    };
+
+    const fields = {
+      place: document.querySelector("#place-label"),
+      heading: document.querySelector("#today-heading"),
+      summary: document.querySelector("#plain-summary"),
+      birds: document.querySelector("#birds-answer"),
+      birdsPill: document.querySelector("#birds-pill"),
+      view: document.querySelector("#view-answer"),
+      viewPill: document.querySelector("#view-pill"),
+      gear: document.querySelector("#gear-answer"),
+      gearPill: document.querySelector("#gear-pill"),
+      map: document.querySelector("#map-copy"),
+      mapBox: document.querySelector("#simple-map"),
+      faceControls: document.querySelector("#face-controls"),
+      faceCopy: document.querySelector("#face-copy"),
+      forecastDays: document.querySelector("#forecast-days"),
+      whyList: document.querySelector("#why-list")
+    };
+
+    function getActiveProfile() {
+      const site = sites[state.site];
+
+      if (site.faces) {
+        return {
+          ...site,
+          ...site.faces[state.face],
+          mapClass: site.mapClass + " montauk-" + state.face
+        };
+      }
+
+      return site;
+    }
+
+    function getForecastDates() {
+      const now = new Date();
+      const firstOffset = now.getHours() < 12 ? 0 : 1;
+      const formatter = new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+      });
+
+      return [0, 1, 2].map((step) => {
+        const offset = firstOffset + step;
+        const date = new Date(now);
+        date.setDate(now.getDate() + offset);
+
+        let label = formatter.format(date);
+        if (offset === 0) {
+          label = "Today, " + label;
+        } else if (offset === 1) {
+          label = "Tomorrow, " + label;
+        } else if (offset === 2) {
+          label = "Next day, " + label;
+        }
+
+        return label;
+      });
+    }
+
+    function renderForecast(forecast) {
+      const labels = getForecastDates();
+
+      fields.forecastDays.innerHTML = forecast.map((day, index) => `
+        <article class="day-card">
+          <time>${labels[index]}</time>
+          <h3>${day.headline}</h3>
+          <p>${day.summary}</p>
+          <div class="day-detail">
+            <span><strong>Birds:</strong> ${day.birds}</span>
+            <span><strong>Seeing:</strong> ${day.view}</span>
+            <span><strong>Gear:</strong> ${day.gear}</span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderReasons(reasons) {
+      fields.whyList.innerHTML = reasons.map((reason) => `<li>${reason}</li>`).join("");
+    }
+
+    function setFaceControls() {
+      const isMontauk = state.site === "montauk";
+      fields.faceControls.hidden = !isMontauk;
+
+      document.querySelectorAll(".face-buttons button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.face === state.face);
+      });
+
+      if (isMontauk) {
+        fields.faceCopy.textContent = "Choose which side of Montauk Point you plan to scan.";
+      }
+    }
+
+    function renderSite() {
+      const site = getActiveProfile();
+      fields.place.textContent = site.place;
+      fields.heading.textContent = site.heading;
+      fields.summary.textContent = site.summary;
+      fields.birds.textContent = site.birds;
+      fields.birdsPill.textContent = site.birdsPill;
+      fields.view.textContent = site.view;
+      fields.viewPill.textContent = site.viewPill;
+      fields.gear.textContent = site.gear;
+      fields.gearPill.textContent = site.gearPill;
+      fields.map.textContent = site.map;
+      fields.mapBox.className = "simple-map " + site.mapClass;
+      setFaceControls();
+      renderReasons(site.reasons);
+      renderForecast(site.forecast);
+    }
+
+    document.querySelectorAll(".site-picker button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".site-picker button").forEach((item) => item.classList.remove("is-active"));
+        button.classList.add("is-active");
+        state.site = button.dataset.site;
+        renderSite();
+      });
+    });
+
+    document.querySelectorAll(".face-buttons button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.face = button.dataset.face;
+        renderSite();
+      });
+    });
+
+    renderSite();
+  </script>
+</body>
+</html>
